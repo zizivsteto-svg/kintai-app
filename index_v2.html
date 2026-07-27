@@ -1,1 +1,327 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>勤怠管理アプリ</title>
 
+<style>
+body{
+font-family:sans-serif;
+background:#f4f4f4;
+max-width:700px;
+margin:auto;
+padding:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 2px 5px rgba(0,0,0,0.15);
+margin-bottom:20px;
+}
+
+h1,h2{
+text-align:center;
+}
+
+input,button{
+width:100%;
+padding:12px;
+margin-top:8px;
+margin-bottom:15px;
+box-sizing:border-box;
+}
+
+button{
+background:#1976d2;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:16px;
+}
+
+button:hover{
+background:#1565c0;
+}
+
+.result{
+text-align:center;
+font-size:22px;
+font-weight:bold;
+margin-top:15px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:8px;
+text-align:center;
+}
+
+th{
+background:#eef5ff;
+}
+
+.deleteBtn{
+background:#d32f2f;
+padding:6px 10px;
+width:auto;
+}
+
+.deleteBtn:hover{
+background:#b71c1c;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>勤怠管理アプリ</h1>
+
+<div class="card">
+
+<h3 id="today"></h3>
+
+<label>出勤時刻</label>
+<input type="time" id="start">
+
+<label>退勤時刻</label>
+<input type="time" id="end">
+
+<label>休憩時間（分）</label>
+<input type="number" id="break" value="60">
+
+<button id="saveBtn" onclick="calc()">勤務を登録</button>
+
+<div class="result" id="result"></div>
+
+</div>
+
+<div class="card">
+
+<h2>月間集計</h2>
+
+<div id="monthly">
+今月累計：0時間0分<br>
+残業累計：0時間0分
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>勤務履歴</h2>
+
+<table>
+<thead>
+<tr>
+<th>日付</th>
+<th>出勤</th>
+<th>退勤</th>
+<th>実働</th>
+<th>削除</th>
+</tr>
+</thead>
+
+<tbody id="historyBody">
+</tbody>
+
+</table>
+
+</div>
+
+<script>
+
+document.getElementById("today").textContent =
+new Date().toLocaleDateString("ja-JP");
+
+loadData();
+
+function calc(){
+
+const btn=document.getElementById("saveBtn");
+btn.disabled=true;
+
+const start=document.getElementById("start").value;
+const end=document.getElementById("end").value;
+const breakTime=parseInt(document.getElementById("break").value)||0;
+
+if(!start || !end){
+alert("出勤時刻と退勤時刻を入力してください");
+btn.disabled=false;
+return;
+}
+
+let records=
+JSON.parse(localStorage.getItem("records")) || [];
+
+if(records.length>0){
+
+let last=records[0];
+
+if(
+last.date===new Date().toLocaleDateString("ja-JP")
+&& last.start===start
+&& last.end===end
+){
+alert("同じ勤務が登録されています");
+btn.disabled=false;
+return;
+}
+
+}
+
+let startMin=
+parseInt(start.split(":")[0])*60+
+parseInt(start.split(":")[1]);
+
+let endMin=
+parseInt(end.split(":")[0])*60+
+parseInt(end.split(":")[1]);
+
+if(endMin < startMin){
+endMin += 24*60;
+}
+
+let work=endMin-startMin-breakTime;
+
+let overtime=Math.max(0,work-480);
+
+let h=Math.floor(work/60);
+let m=work%60;
+
+let oh=Math.floor(overtime/60);
+let om=overtime%60;
+
+document.getElementById("result").innerHTML=
+`
+実働時間<br>
+${h}時間 ${m}分
+<br><br>
+残業時間<br>
+${oh}時間 ${om}分
+`;
+
+saveRecord(
+work,
+overtime,
+start,
+end,
+breakTime
+);
+
+setTimeout(()=>{
+btn.disabled=false;
+},1000);
+
+}
+
+function saveRecord(
+work,
+overtime,
+start,
+end,
+breakTime
+){
+
+let records=
+JSON.parse(localStorage.getItem("records")) || [];
+
+records.unshift({
+date:new Date().toLocaleDateString("ja-JP"),
+start:start,
+end:end,
+breakTime:breakTime,
+work:work,
+overtime:overtime
+});
+
+localStorage.setItem(
+"records",
+JSON.stringify(records)
+);
+
+loadData();
+
+}
+
+function deleteRecord(index){
+
+if(!confirm("この勤務記録を削除しますか？")){
+return;
+}
+
+let records=
+JSON.parse(localStorage.getItem("records")) || [];
+
+records.splice(index,1);
+
+localStorage.setItem(
+"records",
+JSON.stringify(records)
+);
+
+loadData();
+
+}
+
+function loadData(){
+
+let records=
+JSON.parse(localStorage.getItem("records")) || [];
+
+let totalWork=0;
+let totalOver=0;
+let html="";
+
+records.forEach((r,index)=>{
+
+totalWork+=r.work;
+totalOver+=r.overtime;
+
+html+=`
+<tr>
+<td>${r.date}</td>
+<td>${r.start}</td>
+<td>${r.end}</td>
+<td>${Math.floor(r.work/60)}h${r.work%60}m</td>
+<td>
+<button
+class="deleteBtn"
+onclick="deleteRecord(${index})">
+削除
+</button>
+</td>
+</tr>
+`;
+
+});
+
+let workH=Math.floor(totalWork/60);
+let workM=totalWork%60;
+
+let overH=Math.floor(totalOver/60);
+let overM=totalOver%60;
+
+document.getElementById("monthly").innerHTML=
+`
+今月累計：${workH}時間${workM}分<br>
+残業累計：${overH}時間${overM}分
+`;
+
+document.getElementById("historyBody").innerHTML=html;
+
+}
+
+</script>
+
+</body>
+</html
