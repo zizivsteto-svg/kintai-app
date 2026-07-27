@@ -89,6 +89,30 @@ background:#b71c1c;
 <div class="card">
 
 <h3 id="today"></h3>
+<h3 id="today"></h3>
+
+<label>勤務日</label><br>
+
+<input type="radio" name="dateType" value="today" checked>
+今日
+
+<input type="radio" name="dateType" value="tomorrow">
+翌日
+
+<input type="radio" name="dateType" value="custom">
+日付指定
+
+<input type="date" id="workDate">
+
+<br><br>
+
+<label>勤務区分</label>
+
+<select id="workType">
+<option value="work">出勤</option>
+<option value="holiday">休日</option>
+<option value="absence">欠勤</option>
+</select>
 
 <label>出勤時刻</label>
 <input type="time" id="start">
@@ -124,6 +148,7 @@ background:#b71c1c;
 <thead>
 <tr>
 <th>日付</th>
+<th>区分</th>
 <th>出勤</th>
 <th>退勤</th>
 <th>実働</th>
@@ -149,7 +174,29 @@ function calc(){
 
 const btn=document.getElementById("saveBtn");
 btn.disabled=true;
+const workType =
+document.getElementById("workType").value;
 
+const dateType =
+document.querySelector(
+'input[name="dateType"]:checked'
+).value;
+
+let workDate;
+
+if(dateType==="today"){
+workDate =
+new Date().toLocaleDateString("ja-JP");
+}
+else if(dateType==="tomorrow"){
+let d=new Date();
+d.setDate(d.getDate()+1);
+workDate=d.toLocaleDateString("ja-JP");
+}
+else{
+workDate=
+document.getElementById("workDate").value;
+}
 const start=document.getElementById("start").value;
 const end=document.getElementById("end").value;
 const breakTime=parseInt(document.getElementById("break").value)||0;
@@ -236,7 +283,8 @@ let records=
 JSON.parse(localStorage.getItem("records")) || [];
 
 records.unshift({
-date:new Date().toLocaleDateString("ja-JP"),
+date:workDate,
+type:workType,
 start:start,
 end:end,
 breakTime:breakTime,
@@ -289,7 +337,8 @@ totalOver+=r.overtime;
 
 html+=`
 <tr>
-<td>${r.date}</td>
+<td>${r.date}</dt>
+<td>${r.type}</td>
 <td>${r.start}</td>
 <td>${r.end}</td>
 <td>${Math.floor(r.work/60)}h${r.work%60}m</td>
