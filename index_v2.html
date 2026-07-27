@@ -132,7 +132,7 @@ background:#b71c1c;
 <div class="card">
 
 <h2>月間集計</h2>
-
+<label>集計対象月</label>2<input type="month" id="monthFilter">
 <div id="monthly">
 今月累計：0時間0分<br>
 残業累計：0時間0分
@@ -169,7 +169,11 @@ document.getElementById("today").textContent =
 new Date().toLocaleDateString("ja-JP");
 
 loadData();
+document.getElementById("monthFilter").value =
+new Date().toISOString().slice(0,7);
 
+document.getElementById("monthFilter")
+.addEventListener("change", loadData);
 function calc(){
 
 const btn=document.getElementById("saveBtn");
@@ -209,7 +213,8 @@ return;
 
 let records=
 JSON.parse(localStorage.getItem("records")) || [];
-
+const monthFilter =
+document.getElementById("monthFilter").value;
 if(records.length>0){
 
 let last=records[0];
@@ -331,7 +336,16 @@ let totalOver=0;
 let html="";
 
 records.forEach((r,index)=>{
+if(monthFilter){
 
+let recordMonth =
+r.date.substring(0,7).replace(/\//g,"-");
+
+if(recordMonth !== monthFilter){
+return;
+}
+
+}
 totalWork+=r.work;
 totalOver+=r.overtime;
 
