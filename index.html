@@ -1,53 +1,70 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>勤怠管理アプリ</title>
+
 <style>
 body{
 font-family:sans-serif;
-max-width:500px;
+background:#f4f4f4;
+max-width:600px;
 margin:auto;
 padding:20px;
-background:#f4f4f4;
 }
+
+.card{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 2px 5px rgba(0,0,0,0.15);
+}
+
 h1{
 text-align:center;
 }
-.card{
-background:white;
-padding:15px;
-margin:10px 0;
-border-radius:10px;
-box-shadow:0 2px 5px rgba(0,0,0,.1);
-}
+
 input,button{
 width:100%;
-padding:10px;
+padding:12px;
 margin-top:8px;
+margin-bottom:15px;
 box-sizing:border-box;
 }
+
 button{
-background:#0078d7;
+background:#1976d2;
 color:white;
 border:none;
-border-radius:5px;
+border-radius:8px;
+font-size:16px;
 }
+
 .result{
-font-size:20px;
-font-weight:bold;
 text-align:center;
+font-size:22px;
+font-weight:bold;
 margin-top:15px;
+}
+
+.summary{
+margin-top:20px;
+padding:15px;
+background:#eef5ff;
+border-radius:8px;
 }
 </style>
 </head>
+
 <body>
 
 <h1>勤怠管理</h1>
 
 <div class="card">
+
+<h3 id="today"></h3>
+
 <label>出勤時刻</label>
 <input type="time" id="start">
 
@@ -57,36 +74,115 @@ margin-top:15px;
 <label>休憩時間（分）</label>
 <input type="number" id="break" value="60">
 
-<button onclick="calc()">労働時間を計算</button>
+<button onclick="calc()">勤務を登録</button>
 
 <div class="result" id="result"></div>
+
+<div class="summary">
+<h3>月間集計</h3>
+<div id="monthly"></div>
+</div>
+
 </div>
 
 <script>
-function calc(){
-const start=document.getElementById('start').value;
-const end=document.getElementById('end').value;
-const breakTime=parseInt(document.getElementById('break').value)||0;
 
-if(!start||!end){
-alert('出勤と退勤を入力してください');
+document.getElementById("today").textContent =
+new Date().toLocaleDateString("ja-JP");
+
+loadMonthly();
+
+function calc(){
+
+const start=document.getElementById("start").value;
+const end=document.getElementById("end").value;
+const breakTime=parseInt(document.getElementById("break").value)||0;
+
+if(!start || !end){
+alert("出勤時刻と退勤時刻を入力してください");
 return;
 }
 
-const s=start.split(':');
-const e=end.split(':');
+let startMin=
+parseInt(start.split(":")[0])*60+
+parseInt(start.split(":")[1]);
 
-let startMin=parseInt(s[0])*60+parseInt(s[1]);
-let endMin=parseInt(e[0])*60+parseInt(e[1]);
+let endMin=
+parseInt(end.split(":")[0])*60+
+parseInt(end.split(":")[1]);
+
+if(endMin < startMin){
+endMin += 24*60;
+}
 
 let work=endMin-startMin-breakTime;
+
+let overtime=Math.max(0,work-480);
 
 let h=Math.floor(work/60);
 let m=work%60;
 
-document.getElementById('result').innerHTML=
-`実働時間<br>${h}時間 ${m}分`;
+let oh=Math.floor(overtime/60);
+let om=overtime%60;
+
+document.getElementById("result").innerHTML=
+`
+実働時間<br>
+${h}時間 ${m}分
+<br><br>
+残業時間<br>
+${oh}時間 ${om}分
+`;
+
+saveMonthly(work);
+
 }
+
+function saveMonthly(work){
+
+const month=
+new Date().getFullYear()+"-"+
+(new Date().getMonth()+1);
+
+let data=
+JSON.parse(localStorage.getItem("kintai")) || {};
+
+if(!data[month]){
+data[month]=0;
+}
+
+data[month]+=work;
+
+localStorage.setItem(
+"kintai",
+JSON.stringify(data)
+);
+
+loadMonthly();
+
+}
+
+function loadMonthly(){
+
+const month=
+new Date().getFullYear()+"-"+
+(new Date().getMonth()+1);
+
+let data=
+JSON.parse(localStorage.getItem("kintai")) || {};
+
+let total=data[month] || 0;
+
+let h=Math.floor(total/60);
+let m=total%60;
+
+document.getElementById("monthly").innerHTML=
+`
+今月累計：<b>${h}時間 ${m}分</b>
+`;
+
+}
+
 </script>
 
 </body>
