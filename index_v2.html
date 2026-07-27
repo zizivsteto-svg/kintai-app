@@ -201,6 +201,11 @@ else{
 workDate=
 document.getElementById("workDate").value;
 }
+  
+if(workDate.includes("/")){
+workDate = workDate.replaceAll("/","-");
+}
+
 const start=document.getElementById("start").value;
 const end=document.getElementById("end").value;
 const breakTime=parseInt(document.getElementById("break").value)||0;
