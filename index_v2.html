@@ -409,43 +409,6 @@ document.getElementById("historyBody").innerHTML =
 html;
 
 }
-totalWork+=r.work;
-totalOver+=r.overtime;
-
-html+=`
-<tr>
-<td>${r.date}</dt>
-<td>${r.type}</td>
-<td>${r.start}</td>
-<td>${r.end}</td>
-<td>${Math.floor(r.work/60)}h${r.work%60}m</td>
-<td>
-<button
-class="deleteBtn"
-onclick="deleteRecord(${index})">
-削除
-</button>
-</td>
-</tr>
-`;
-
-});
-
-let workH=Math.floor(totalWork/60);
-let workM=totalWork%60;
-
-let overH=Math.floor(totalOver/60);
-let overM=totalOver%60;
-
-document.getElementById("monthly").innerHTML=
-`
-今月累計：${workH}時間${workM}分<br>
-残業累計：${overH}時間${overM}分
-`;
-
-document.getElementById("historyBody").innerHTML=html;
-
-}
 
 </script>
 
