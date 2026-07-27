@@ -71,7 +71,7 @@ border-radius:8px;
 <th>出勤</th>
 <th>退勤</th>
 <th>実働</th>
-</tr>
+<th>削除</th>
 </thead>
 
 <tbody id="historyBody">
@@ -110,7 +110,13 @@ new Date().toLocaleDateString("ja-JP");
 loadData();
 
 function calc(){
+function calc(){
 
+const btn=document.querySelector("button");
+btn.disabled=true;
+
+const start=document.getElementById("start").value;
+const end=document.getElementById("end").value;
 const start=document.getElementById("start").value;
 const end=document.getElementById("end").value;
 const breakTime=parseInt(document.getElementById("break").value)||0;
@@ -151,7 +157,11 @@ ${oh}時間 ${om}分
 `;
 
 saveRecord(work,overtime,start,end,breakTime);
+saveRecord(work,overtime,start,end,breakTime);
 
+setTimeout(()=>{
+btn.disabled=false;
+},1000);
 }
 
 function saveRecord(work,overtime,start,end,breakTime){
@@ -174,6 +184,20 @@ JSON.stringify(records)
 );
 
 loadData();
+function deleteRecord(index){
+
+let records =
+JSON.parse(localStorage.getItem("records")) || [];
+
+records.splice(index,1);
+
+localStorage.setItem(
+"records",
+JSON.stringify(records)
+);
+
+loadData();
+
 }
 
 function loadData(){
@@ -185,7 +209,7 @@ let totalWork=0;
 let totalOver=0;
 let html="";
 
-records.forEach(r=>{
+records.forEach((r,index)=>{
 
 totalWork+=r.work;
 totalOver+=r.overtime;
@@ -196,6 +220,7 @@ html += `
 <td>${r.start}</td>
 <td>${r.end}</td>
 <td>${Math.floor(r.work/60)}h${r.work%60}m</td>
+<td><button onclick="deleteRecord(${index})">🗑️</button></td>
 </tr>
 `;
 });
