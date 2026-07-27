@@ -202,17 +202,17 @@ loadData();
 
 function loadData(){
 
-let records=
+let records =
 JSON.parse(localStorage.getItem("records")) || [];
 
-let totalWork=0;
-let totalOver=0;
-let html="";
+let totalWork = 0;
+let totalOver = 0;
+let html = "";
 
 records.forEach((r,index)=>{
 
-totalWork+=r.work;
-totalOver+=r.overtime;
+totalWork += r.work;
+totalOver += r.overtime;
 
 html += `
 <tr>
@@ -220,27 +220,32 @@ html += `
 <td>${r.start}</td>
 <td>${r.end}</td>
 <td>${Math.floor(r.work/60)}h${r.work%60}m</td>
-<td><button onclick="deleteRecord(${index})">削除</button></td>
-</tr>
+<td>
+<button onclick="deleteRecord(${index})">
+削除
+</button>
+</td>
 </tr>
 `;
 
 });
 
-let workH=Math.floor(totalWork/60);
-let workM=totalWork%60;
+let workH = Math.floor(totalWork/60);
+let workM = totalWork%60;
 
-let overH=Math.floor(totalOver/60);
-let overM=totalOver%60;
+let overH = Math.floor(totalOver/60);
+let overM = totalOver%60;
 
-document.getElementById("monthly").innerHTML=
-`
+document.getElementById("monthly").innerHTML = `
 今月累計：${workH}時間${workM}分<br>
 残業累計：${overH}時間${overM}分
 `;
 
-if(document.getElementById("historyBody")){
-document.getElementById("historyBody").innerHTML=html;
+const historyBody =
+document.getElementById("historyBody");
+
+if(historyBody){
+historyBody.innerHTML = html;
 }
 
 }
