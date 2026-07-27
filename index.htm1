@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>勤怠管理アプリ</title>
+<style>
+body{
+font-family:sans-serif;
+max-width:500px;
+margin:auto;
+padding:20px;
+background:#f4f4f4;
+}
+h1{
+text-align:center;
+}
+.card{
+background:white;
+padding:15px;
+margin:10px 0;
+border-radius:10px;
+box-shadow:0 2px 5px rgba(0,0,0,.1);
+}
+input,button{
+width:100%;
+padding:10px;
+margin-top:8px;
+box-sizing:border-box;
+}
+button{
+background:#0078d7;
+color:white;
+border:none;
+border-radius:5px;
+}
+.result{
+font-size:20px;
+font-weight:bold;
+text-align:center;
+margin-top:15px;
+}
+</style>
+</head>
+<body>
+
+<h1>勤怠管理</h1>
+
+<div class="card">
+<label>出勤時刻</label>
+<input type="time" id="start">
+
+<label>退勤時刻</label>
+<input type="time" id="end">
+
+<label>休憩時間（分）</label>
+<input type="number" id="break" value="60">
+
+<button onclick="calc()">労働時間を計算</button>
+
+<div class="result" id="result"></div>
+</div>
+
+<script>
+function calc(){
+const start=document.getElementById('start').value;
+const end=document.getElementById('end').value;
+const breakTime=parseInt(document.getElementById('break').value)||0;
+
+if(!start||!end){
+alert('出勤と退勤を入力してください');
+return;
+}
+
+const s=start.split(':');
+const e=end.split(':');
+
+let startMin=parseInt(s[0])*60+parseInt(s[1]);
+let endMin=parseInt(e[0])*60+parseInt(e[1]);
+
+let work=endMin-startMin-breakTime;
+
+let h=Math.floor(work/60);
+let m=work%60;
+
+document.getElementById('result').innerHTML=
+`実働時間<br>${h}時間 ${m}分`;
+}
+</script>
+
+</body>
+</html>
