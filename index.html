@@ -61,8 +61,25 @@ border-radius:8px;
 
 <h1>勤怠管理</h1>
 
-<div class="card">
+<div class="summary">
+<h3>勤務履歴</h3>
 
+<table style="width:100%">
+<thead>
+<tr>
+<th>日付</th>
+<th>出勤</th>
+<th>退勤</th>
+<th>実働</th>
+</tr>
+</thead>
+
+<tbody id="historyBody">
+</tbody>
+
+</table>
+</div>
+  
 <h3 id="today"></h3>
 
 <label>出勤時刻</label>
@@ -90,7 +107,7 @@ border-radius:8px;
 document.getElementById("today").textContent =
 new Date().toLocaleDateString("ja-JP");
 
-loadMonthly();
+loadData();
 
 function calc(){
 
@@ -116,7 +133,6 @@ endMin += 24*60;
 }
 
 let work=endMin-startMin-breakTime;
-
 let overtime=Math.max(0,work-480);
 
 let h=Math.floor(work/60);
@@ -134,56 +150,75 @@ ${h}時間 ${m}分
 ${oh}時間 ${om}分
 `;
 
-saveMonthly(work);
+saveRecord(work,overtime,start,end,breakTime);
 
 }
 
-function saveMonthly(work){
+function saveRecord(work,overtime,start,end,breakTime){
 
-const month=
-new Date().getFullYear()+"-"+
-(new Date().getMonth()+1);
+let records=
+JSON.parse(localStorage.getItem("records")) || [];
 
-let data=
-JSON.parse(localStorage.getItem("kintai")) || {};
-
-if(!data[month]){
-data[month]=0;
-}
-
-data[month]+=work;
+records.unshift({
+date:new Date().toLocaleDateString("ja-JP"),
+start:start,
+end:end,
+breakTime:breakTime,
+work:work,
+overtime:overtime
+});
 
 localStorage.setItem(
-"kintai",
-JSON.stringify(data)
+"records",
+JSON.stringify(records)
 );
 
-loadMonthly();
-
+loadData();
 }
 
-function loadMonthly(){
+function loadData(){
 
-const month=
-new Date().getFullYear()+"-"+
-(new Date().getMonth()+1);
+let records=
+JSON.parse(localStorage.getItem("records")) || [];
 
-let data=
-JSON.parse(localStorage.getItem("kintai")) || {};
+let totalWork=0;
+let totalOver=0;
+let html="";
 
-let total=data[month] || 0;
+records.forEach(r=>{
 
-let h=Math.floor(total/60);
-let m=total%60;
+totalWork+=r.work;
+totalOver+=r.overtime;
+
+html += `
+<tr>
+<td>${r.date}</td>
+<td>${r.start}</td>
+<td>${r.end}</td>
+<td>${Math.floor(r.work/60)}h${r.work%60}m</td>
+</tr>
+`;
+});
+
+let workH=Math.floor(totalWork/60);
+let workM=totalWork%60;
+
+let overH=Math.floor(totalOver/60);
+let overM=totalOver%60;
 
 document.getElementById("monthly").innerHTML=
 `
-今月累計：<b>${h}時間 ${m}分</b>
+今月累計：${workH}時間${workM}分<br>
+残業累計：${overH}時間${overM}分
 `;
 
+if(document.getElementById("historyBody")){
+document.getElementById("historyBody").innerHTML=html;
+}
 }
 
 </script>
+`
 
 </body>
 </html>
