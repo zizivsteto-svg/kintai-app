@@ -333,22 +333,80 @@ loadData();
 
 function loadData(){
 
-let records=
+let records =
 JSON.parse(localStorage.getItem("records")) || [];
 
-let totalWork=0;
-let totalOver=0;
-let html="";
+const monthFilter =
+document.getElementById("monthFilter").value;
+
+let totalWork = 0;
+let totalOver = 0;
+
+let workCount = 0;
+let holidayCount = 0;
+let absenceCount = 0;
+
+let html = "";
 
 records.forEach((r,index)=>{
+
 if(monthFilter){
 
-let recordMonth =
-r.date.substring(0,7).replace(/\//g,"-");
+let recordMonth = r.date.substring(0,7);
 
 if(recordMonth !== monthFilter){
 return;
 }
+
+}
+
+if(r.type === "work"){
+workCount++;
+totalWork += r.work || 0;
+totalOver += r.overtime || 0;
+}
+else if(r.type === "holiday"){
+holidayCount++;
+}
+else if(r.type === "absence"){
+absenceCount++;
+}
+
+html += `
+<tr>
+<td>${r.date}</td>
+<td>${r.type}</td>
+<td>${r.start || "-"}</td>
+<td>${r.end || "-"}</td>
+<td>${Math.floor((r.work || 0)/60)}h${(r.work || 0)%60}m</td>
+<td>
+<button class="deleteBtn"
+onclick="deleteRecord(${index})">
+削除
+</button>
+</td>
+</tr>
+`;
+
+});
+
+let workH = Math.floor(totalWork/60);
+let workM = totalWork%60;
+
+let overH = Math.floor(totalOver/60);
+let overM = totalOver%60;
+
+document.getElementById("monthly").innerHTML = `
+勤務回数：${workCount}回<br>
+休日：${holidayCount}日<br>
+欠勤：${absenceCount}日<br><br>
+
+勤務時間：${workH}時間${workM}分<br>
+残業時間：${overH}時間${overM}分
+`;
+
+document.getElementById("historyBody").innerHTML =
+html;
 
 }
 totalWork+=r.work;
