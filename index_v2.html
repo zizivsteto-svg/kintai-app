@@ -7,81 +7,80 @@
 
 <style>
 body{
-font-family:sans-serif;
-background:#f4f4f4;
-max-width:700px;
-margin:auto;
-padding:20px;
+    font-family:sans-serif;
+    background:#f4f4f4;
+    max-width:700px;
+    margin:auto;
+    padding:20px;
 }
 
 .card{
-background:white;
-padding:20px;
-border-radius:12px;
-box-shadow:0 2px 5px rgba(0,0,0,0.15);
-margin-bottom:20px;
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 2px 5px rgba(0,0,0,.15);
+    margin-bottom:20px;
 }
 
 h1,h2{
-text-align:center;
+    text-align:center;
 }
 
-input,button{
-width:100%;
-padding:12px;
-margin-top:8px;
-margin-bottom:15px;
-box-sizing:border-box;
+input,select,button{
+    width:100%;
+    padding:12px;
+    margin-top:8px;
+    margin-bottom:15px;
+    box-sizing:border-box;
 }
 
 button{
-background:#1976d2;
-color:white;
-border:none;
-border-radius:8px;
-cursor:pointer;
-font-size:16px;
+    background:#1976d2;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
 }
 
 button:hover{
-background:#1565c0;
+    background:#1565c0;
 }
 
 .result{
-text-align:center;
-font-size:22px;
-font-weight:bold;
-margin-top:15px;
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+    margin-top:15px;
 }
 
 table{
-width:100%;
-border-collapse:collapse;
+    width:100%;
+    border-collapse:collapse;
 }
 
 th,td{
-border:1px solid #ddd;
-padding:8px;
-text-align:center;
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:center;
 }
 
 th{
-background:#eef5ff;
+    background:#eef5ff;
 }
 
 .deleteBtn{
-background:#d32f2f;
-padding:6px 10px;
-width:auto;
+    background:#d32f2f;
+    width:auto;
+    padding:6px 10px;
 }
 
 .deleteBtn:hover{
-background:#b71c1c;
+    background:#b71c1c;
 }
 </style>
 
 </head>
-
 <body>
 
 <h1>勤怠管理アプリ</h1>
@@ -89,29 +88,20 @@ background:#b71c1c;
 <div class="card">
 
 <h3 id="today"></h3>
-<h3 id="today"></h3>
 
 <label>勤務日</label><br>
 
-<input type="radio" name="dateType" value="today" checked>
-今日
-
-<input type="radio" name="dateType" value="tomorrow">
-翌日
-
-<input type="radio" name="dateType" value="custom">
-日付指定
+<input type="radio" name="dateType" value="today" checked> 今日
+<input type="radio" name="dateType" value="tomorrow"> 翌日
+<input type="radio" name="dateType" value="custom"> 日付指定
 
 <input type="date" id="workDate">
 
-<br><br>
-
 <label>勤務区分</label>
-
 <select id="workType">
-<option value="work">出勤</option>
-<option value="holiday">休日</option>
-<option value="absence">欠勤</option>
+    <option value="work">出勤</option>
+    <option value="holiday">休日</option>
+    <option value="absence">欠勤</option>
 </select>
 
 <label>出勤時刻</label>
@@ -132,11 +122,11 @@ background:#b71c1c;
 <div class="card">
 
 <h2>月間集計</h2>
-<label>集計対象月</label>2<input type="month" id="monthFilter">
-<div id="monthly">
-今月累計：0時間0分<br>
-残業累計：0時間0分
-</div>
+
+<label>集計対象月</label>
+<input type="month" id="monthFilter">
+
+<div id="monthly"></div>
 
 </div>
 
@@ -156,8 +146,7 @@ background:#b71c1c;
 </tr>
 </thead>
 
-<tbody id="historyBody">
-</tbody>
+<tbody id="historyBody"></tbody>
 
 </table>
 
@@ -165,123 +154,139 @@ background:#b71c1c;
 
 <script>
 
-document.getElementById("today").textContent =
-new Date().toLocaleDateString("ja-JP");
+function formatDate(date){
+    return date.toISOString().split("T")[0];
+}
 
-loadData();
+document.getElementById("today").textContent =
+"本日 : " + formatDate(new Date());
+
 document.getElementById("monthFilter").value =
 new Date().toISOString().slice(0,7);
 
 document.getElementById("monthFilter")
 .addEventListener("change", loadData);
+
+loadData();
+
 function calc(){
 
-const btn=document.getElementById("saveBtn");
-btn.disabled=true;
-const workType =
-document.getElementById("workType").value;
+    const btn=document.getElementById("saveBtn");
+    btn.disabled=true;
 
-const dateType =
-document.querySelector(
-'input[name="dateType"]:checked'
-).value;
+    const workType=
+    document.getElementById("workType").value;
 
-let workDate;
+    const dateType=
+    document.querySelector(
+    'input[name="dateType"]:checked'
+    ).value;
 
-if(dateType==="today"){
-workDate =
-new Date().toLocaleDateString("ja-JP");
+    let workDate;
+
+    if(dateType==="today"){
+        workDate=formatDate(new Date());
+    }
+    else if(dateType==="tomorrow"){
+        let d=new Date();
+        d.setDate(d.getDate()+1);
+        workDate=formatDate(d);
+    }
+    else{
+        workDate=
+        document.getElementById("workDate").value;
+    }
+
+    if(!workDate){
+        alert("日付を選択してください");
+        btn.disabled=false;
+        return;
+    }
+
+    const start=
+    document.getElementById("start").value;
+
+    const end=
+    document.getElementById("end").value;
+
+    const breakTime=
+    parseInt(document.getElementById("break").value)||0;
+
+    let work=0;
+    let overtime=0;
+
+    if(workType==="work"){
+
+        if(!start || !end){
+            alert("出勤時刻と退勤時刻を入力してください");
+            btn.disabled=false;
+            return;
+        }
+
+        const exists=
+        (JSON.parse(localStorage.getItem("records")) || [])
+        .some(r =>
+            r.date===workDate &&
+            r.start===start &&
+            r.end===end
+        );
+
+        if(exists){
+            alert("同じ勤務が登録されています");
+            btn.disabled=false;
+            return;
+        }
+
+        let startMin=
+        parseInt(start.split(":")[0])*60+
+        parseInt(start.split(":")[1]);
+
+        let endMin=
+        parseInt(end.split(":")[0])*60+
+        parseInt(end.split(":")[1]);
+
+        if(endMin<startMin){
+            endMin+=1440;
+        }
+
+        work=endMin-startMin-breakTime;
+
+        if(work<0){
+            work=0;
+        }
+
+        overtime=Math.max(0,work-480);
+    }
+
+    let h=Math.floor(work/60);
+    let m=work%60;
+
+    let oh=Math.floor(overtime/60);
+    let om=overtime%60;
+
+    document.getElementById("result").innerHTML=
+    `
+    実働時間<br>
+    ${h}時間 ${m}分
+    <br><br>
+    残業時間<br>
+    ${oh}時間 ${om}分
+    `;
+
+    saveRecord(
+        work,
+        overtime,
+        start,
+        end,
+        breakTime,
+        workDate,
+        workType
+    );
+
+    setTimeout(()=>{
+        btn.disabled=false;
+    },1000);
 }
-else if(dateType==="tomorrow"){
-let d=new Date();
-d.setDate(d.getDate()+1);
-workDate=d.toLocaleDateString("ja-JP");
-}
-else{
-workDate=
-document.getElementById("workDate").value;
-}
-  
-if(workDate.includes("/")){
-workDate = workDate.replaceAll("/","-");
-}
-
-const start=document.getElementById("start").value;
-const end=document.getElementById("end").value;
-const breakTime=parseInt(document.getElementById("break").value)||0;
-
-if(!start || !end){
-alert("出勤時刻と退勤時刻を入力してください");
-btn.disabled=false;
-return;
-}
-
-let records=
-JSON.parse(localStorage.getItem("records")) || [];
-const monthFilter =
-document.getElementById("monthFilter").value;
-if(records.length>0){
-
-let last=records[0];
-
-if(
-last.date===new Date().toLocaleDateString("ja-JP")
-&& last.start===start
-&& last.end===end
-){
-alert("同じ勤務が登録されています");
-btn.disabled=false;
-return;
-}
-
-}
-
-let startMin=
-parseInt(start.split(":")[0])*60+
-parseInt(start.split(":")[1]);
-
-let endMin=
-parseInt(end.split(":")[0])*60+
-parseInt(end.split(":")[1]);
-
-if(endMin < startMin){
-endMin += 24*60;
-}
-
-let work=endMin-startMin-breakTime;
-
-let overtime=Math.max(0,work-480);
-
-let h=Math.floor(work/60);
-let m=work%60;
-
-let oh=Math.floor(overtime/60);
-let om=overtime%60;
-
-document.getElementById("result").innerHTML=
-`
-実働時間<br>
-${h}時間 ${m}分
-<br><br>
-残業時間<br>
-${oh}時間 ${om}分
-`;
-
-
-
-setTimeout(()=>{
-btn.disabled=false;
-},1000);
-
-}saveRecord(
-work,
-overtime,
-start,
-end,
-breakTime,
-workDate,
-workType
-);
 
 function saveRecord(
 work,
@@ -293,128 +298,26 @@ workDate,
 workType
 ){
 
-let records=
-JSON.parse(localStorage.getItem("records")) || [];
+    let records=
+    JSON.parse(localStorage.getItem("records")) || [];
 
-records.unshift({
-date:workDate,
-type:workType,
-start:start,
-end:end,
-breakTime:breakTime,
-work:work,
-overtime:overtime
-});
+    records.unshift({
+        id:Date.now(),
+        date:workDate,
+        type:workType,
+        start:start,
+        end:end,
+        breakTime:breakTime,
+        work:work,
+        overtime:overtime
+    });
 
-localStorage.setItem(
-"records",
-JSON.stringify(records)
-);
+    localStorage.setItem(
+        "records",
+        JSON.stringify(records)
+    );
 
-loadData();
+    loadData();
 
-}
-
-function deleteRecord(index){
-
-if(!confirm("この勤務記録を削除しますか？")){
-return;
-}
-
-let records=
-JSON.parse(localStorage.getItem("records")) || [];
-
-records.splice(index,1);
-
-localStorage.setItem(
-"records",
-JSON.stringify(records)
-);
-
-loadData();
-
-}
-
-function loadData(){
-
-let records =
-JSON.parse(localStorage.getItem("records")) || [];
-
-const monthFilter =
-document.getElementById("monthFilter").value;
-
-let totalWork = 0;
-let totalOver = 0;
-
-let workCount = 0;
-let holidayCount = 0;
-let absenceCount = 0;
-
-let html = "";
-
-records.forEach((r,index)=>{
-
-if(monthFilter){
-
-let recordMonth = r.date.substring(0,7);
-
-if(recordMonth !== monthFilter){
-return;
-}
-
-}
-
-if(r.type === "work"){
-workCount++;
-totalWork += r.work || 0;
-totalOver += r.overtime || 0;
-}
-else if(r.type === "holiday"){
-holidayCount++;
-}
-else if(r.type === "absence"){
-absenceCount++;
-}
-
-html += `
-<tr>
-<td>${r.date}</td>
-<td>${r.type}</td>
-<td>${r.start || "-"}</td>
-<td>${r.end || "-"}</td>
-<td>${Math.floor((r.work || 0)/60)}h${(r.work || 0)%60}m</td>
-<td>
-<button class="deleteBtn"
-onclick="deleteRecord(${index})">
-削除
-</button>
-</td>
-</tr>
-`;
-
-});
-
-let workH = Math.floor(totalWork/60);
-let workM = totalWork%60;
-
-let overH = Math.floor(totalOver/60);
-let overM = totalOver%60;
-
-document.getElementById("monthly").innerHTML = `
-勤務回数：${workCount}回<br>
-休日：${holidayCount}日<br>
-欠勤：${absenceCount}日<br><br>
-
-勤務時間：${workH}時間${workM}分<br>
-残業時間：${overH}時間${overM}分
-`;
-
-document.getElementById("historyBody").innerHTML =
-html;
-
-}
-
-</script>
-
-</body>
-</html
+    document.getElementById("start").value="";
+    document.
