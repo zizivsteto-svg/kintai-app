@@ -257,7 +257,13 @@ function calc(){
 
         overtime=Math.max(0,work-480);
     }
+if(!work){
+work = 0;
+}
 
+if(!overtime){
+overtime = 0;
+}
     let h=Math.floor(work/60);
     let m=work%60;
 
