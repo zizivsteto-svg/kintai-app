@@ -216,12 +216,12 @@ function calc(){
     let overtime=0;
 
     if(workType==="work"){
-
-        if(!start || !end){
-            alert("出勤時刻と退勤時刻を入力してください");
-            btn.disabled=false;
-            return;
-        }
+        
+    if(!start && !end){
+    alert("出勤時刻または退勤時刻を入力してください");
+    btn.disabled=false;
+    return;
+}
 
         const exists=
         (JSON.parse(localStorage.getItem("records")) || [])
