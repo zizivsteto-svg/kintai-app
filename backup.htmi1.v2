@@ -1,1 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>勤怠管理アプリ</title>
 
+<style>
+body{
+    font-family:sans-serif;
+    background:#f4f4f4;
+    max-width:700px;
+    margin:auto;
+    padding:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 2px 5px rgba(0,0,0,.15);
+    margin-bottom:20px;
+}
+
+h1,h2{
+    text-align:center;
+}
+
+input,select,button{
+    width:100%;
+    padding:12px;
+    margin-top:8px;
+    margin-bottom:15px;
+    box-sizing:border-box;
+}
+
+button{
+    background:#1976d2;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    background:#1565c0;
+}
+
+.result{
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+    margin-top:15px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:center;
+}
+
+th{
+    background:#eef5ff;
+}
+
+.deleteBtn{
+    background:#d32f2f;
+    width:auto;
+    padding:6px 10px;
+}
+
+.deleteBtn:hover{
+    background:#b71c1c;
+}
+</style>
+
+</head>
+<body>
+
+<h1>勤怠管理アプリ</h1>
+
+<div class="card">
+
+<h3 id="today"></h3>
+
+<label>勤務日</label><br>
+
+<input type="radio" name="dateType" value="today" checked> 今日
+<input type="radio" name="dateType" value="tomorrow"> 翌日
+<input type="radio" name="dateType" value="custom"> 日付指定
+
+<input type="date" id="workDate">
+
+<label>勤務区分</label>
+<select id="workType">
+    <option value="work">出勤</option>
+    <option value="holiday">休日</option>
+    <option value="absence">欠勤</option>
+</select>
+
+<label>出勤時刻</label>
+<input type="time" id="start">
+
+<label>退勤時刻</label>
+<input type="time" id="end">
+
+<label>休憩時間（分）</label>
+<input type="number" id="break" value="60">
+
+<button id="saveBtn" onclick="calc()">勤務を登録</button>
+
+<div class="result" id="result"></div>
+
+</div>
+
+<div class="card">
+
+<h2>月間集計</h2>
+
+<label>集計対象月</label>
+<input type="month" id="monthFilter">
+
+<div id="monthly"></div>
+
+</div>
+
+<div class="card">
+
+<h2>勤務履歴</h2>
+
+<table>
+<thead>
+<tr>
+<th>日付</th>
+<th>区分</th>
+<th>出勤</th>
+<th>退勤</th>
+<th>実働</th>
+<th>削除</th>
+</tr>
+</thead>
+
+<tbody id="historyBody"></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+function formatDate(date){
+    return date.toISOString().split("T")[0];
+}
+
+document.getElementById("today").textContent =
+"本日 : " + formatDate(new Date());
+
+document.getElementById("monthFilter").value =
+new Date().toISOString().slice(0,7);
+
+document.getElementById("monthFilter")
+.addEventListener("change", loadData);
+
+loadData();
+
+function calc(){
+
+    const btn=document.getElementById("saveBtn");
+    btn.disabled=true;
+
+    const workType=
+    document.getElementById("workType").value;
+
+    const dateType=
+    document.querySelector(
+    'input[name="dateType"]:checked'
+    ).value;
+
+    let workDate;
+
+    if(dateType==="today"){
+        workDate=formatDate(new Date());
+    }
+    else if(dateType==="tomorrow"){
+        let d=new Date();
+        d.setDate(d.getDate()+1);
+        workDate=formatDate(d);
+    }
+    else{
+        workDate=
+        document.getElementById("workDate").value;
+    }
+
+    if(!workDate){
+        alert("日付を選択してください");
+        btn.disabled=false;
+        return;
+    }
+
+    const start=
+    document.getElementById("start").value;
+
+    const end=
+    document.getElementById("end").value;
+
+    const breakTime=
+    parseInt(document.getElementById("break").value)||0;
+
+    let work=0;
+    let overtime=0;
+
+    if(workType==="work"){
+
+        if(!start || !end){
+            alert("出勤時刻と退勤時刻を入力してください");
+            btn.disabled=false;
+            return;
+        }
+
+        const exists=
+        (JSON.parse(localStorage.getItem("records")) || [])
+        .some(r =>
+            r.date===workDate &&
+            r.start===start &&
+            r.end===end
+        );
+
+        if(exists){
+            alert("同じ勤務が登録されています");
+            btn.disabled=false;
+            return;
+        }
+
+        let startMin=
+        parseInt(start.split(":")[0])*60+
+        parseInt(start.split(":")[1]);
+
+        let endMin=
+        parseInt(end.split(":")[0])*60+
+        parseInt(end.split(":")[1]);
+
+        if(endMin<startMin){
+            endMin+=1440;
+        }
+
+        work=endMin-startMin-breakTime;
+
+        if(work<0){
+            work=0;
+        }
+
+        overtime=Math.max(0,work-480);
+    }
+
+    let h=Math.floor(work/60);
+    let m=work%60;
+
+    let oh=Math.floor(overtime/60);
+    let om=overtime%60;
+
+    document.getElementById("result").innerHTML=
+    `
+    実働時間<br>
+    ${h}時間 ${m}分
+    <br><br>
+    残業時間<br>
+    ${oh}時間 ${om}分
+    `;
+
+    saveRecord(
+        work,
+        overtime,
+        start,
+        end,
+        breakTime,
+        workDate,
+        workType
+    );
+
+    setTimeout(()=>{
+        btn.disabled=false;
+    },1000);
+}
+
+function saveRecord(
+work,
+overtime,
+start,
+end,
+breakTime,
+workDate,
+workType
+){
+
+    let records=
+    JSON.parse(localStorage.getItem("records")) || [];
+
+    records.unshift({
+        id:Date.now(),
+        date:workDate,
+        type:workType,
+        start:start,
+        end:end,
+        breakTime:breakTime,
+        work:work,
+        overtime:overtime
+    });
+
+    localStorage.setItem(
+        "records",
+        JSON.stringify(records)
+    );
+
+    loadData();
+
+    document.getElementById("start").value="";
+    document.
