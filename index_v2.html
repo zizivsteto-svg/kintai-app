@@ -267,26 +267,30 @@ ${h}時間 ${m}分
 ${oh}時間 ${om}分
 `;
 
-saveRecord(
-work,
-overtime,
-start,
-end,
-breakTime
-);
+
 
 setTimeout(()=>{
 btn.disabled=false;
 },1000);
 
-}
+}saveRecord(
+work,
+overtime,
+start,
+end,
+breakTime,
+workDate,
+workType
+);
 
 function saveRecord(
 work,
 overtime,
 start,
 end,
-breakTime
+breakTime,
+workDate,
+workType
 ){
 
 let records=
