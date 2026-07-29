@@ -264,6 +264,21 @@ if(work < 0){
 target.work = work;
 target.overtime = Math.max(0, work - 480);
 
+let h = Math.floor(work/60);
+let m = work%60;
+
+let oh = Math.floor(target.overtime/60);
+let om = target.overtime%60;
+
+document.getElementById("result").innerHTML =
+`
+実働時間<br>
+${h}時間 ${m}分
+<br><br>
+残業時間<br>
+${oh}時間 ${om}分
+`;
+
 localStorage.setItem(
     "records",
     JSON.stringify(records)
