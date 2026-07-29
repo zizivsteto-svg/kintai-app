@@ -166,9 +166,38 @@ new Date().toISOString().slice(0,7);
 
 document.getElementById("monthFilter")
 .addEventListener("change", loadData);
+    
+document.getElementById("workType")
+.addEventListener("change", toggleWorkInputs);
 
+toggleWorkInputs();
+    
 loadData();
+    
+function toggleWorkInputs(){
 
+const workType =
+document.getElementById("workType").value;
+
+const start =
+document.getElementById("start");
+
+const end =
+document.getElementById("end");
+
+const breakInput =
+document.getElementById("break");
+
+const disabled =
+(workType === "holiday" ||
+ workType === "absence");
+
+start.disabled = disabled;
+end.disabled = disabled;
+breakInput.disabled = disabled;
+
+}
+    
 function calc(){
 
     const btn=document.getElementById("saveBtn");
