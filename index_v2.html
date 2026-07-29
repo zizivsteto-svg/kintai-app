@@ -105,10 +105,10 @@ th{
 </select>
 
 <label>出勤時刻</label>
-<input type="time" id="start">
+<input type="text" id="start">
 
 <label>退勤時刻</label>
-<input type="time" id="end">
+<input type="text" id="end">
 
 <label>休憩時間（分）</label>
 <input type="number" id="break" value="60">
@@ -161,6 +161,19 @@ function formatDate(date){
 document.getElementById("today").textContent =
 "本日 : " + formatDate(new Date());
 
+ const now = new Date();
+
+const currentTime =
+String(now.getHours()).padStart(2,"0")
++ ":"
++ String(now.getMinutes()).padStart(2,"0");
+
+document.getElementById("start")
+.placeholder = currentTime;
+
+document.getElementById("end")
+.placeholder = currentTime;
+    
 document.getElementById("monthFilter").value =
 new Date().toISOString().slice(0,7);
 
