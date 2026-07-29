@@ -217,7 +217,15 @@ breakInput.disabled = disabled;
 
 function updateEndTime(){
 
-alert("退勤のみ更新機能 作成中");
+const end =
+document.getElementById("end").value;
+
+if(!end){
+    alert("退勤時刻を入力してください");
+    return;
+}
+
+alert("退勤時刻 " + end + " で更新します");
 
 }
 
