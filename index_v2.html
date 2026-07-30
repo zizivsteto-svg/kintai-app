@@ -151,12 +151,34 @@ th{
 
     <div class="time-box">
         <label>出勤時刻</label>
-        <input type="text" id="start">
+       <input
+type="text"
+id="start"
+maxlength="5"
+placeholder="2300"
+oninput="
+let v=this.value.replace(/\D/g,'');
+if(v.length>=3){
+this.value=v.slice(0,2)+':'+v.slice(2,4);
+}else{
+this.value=v;
+}"> 
     </div>
 
     <div class="time-box">
         <label>退勤時刻</label>
-        <input type="text" id="end">
+        <input
+type="text"
+id="end"
+maxlength="5"
+placeholder="2300"
+oninput="
+let v=this.value.replace(/\D/g,'');
+if(v.length>=3){
+this.value=v.slice(0,2)+':'+v.slice(2,4);
+}else{
+this.value=v;
+}">
     </div>
 
     <div class="time-box break-box">
