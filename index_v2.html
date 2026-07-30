@@ -98,6 +98,25 @@ th{
     margin-bottom:0;
 }
 
+.date-row{
+    display:flex;
+    gap:20px;
+    align-items:center;
+    margin:10px 0;
+}
+
+.date-row label{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    margin:0;
+}
+
+.date-row input{
+    width:auto;
+    margin:0;
+}
+
 </style>
 
 </head>
@@ -109,11 +128,15 @@ th{
 
 <h3 id="today"></h3>
 
-<label>勤務日</label><br>
+<label>勤務日</label>
 
-<input type="radio" name="dateType" value="today" checked> 今日
-<input type="radio" name="dateType" value="tomorrow"> 翌日
-<input type="radio" name="dateType" value="custom"> 日付指定
+<div class="date-row">
+    <label><input type="radio" name="dateType" value="today" checked> 今日</label>
+
+    <label><input type="radio" name="dateType" value="tomorrow"> 翌日</label>
+
+    <label><input type="radio" name="dateType" value="custom"> 日付指定</label>
+</div>
 
 <input type="date" id="workDate">
 
