@@ -78,6 +78,26 @@ th{
 .deleteBtn:hover{
     background:#b71c1c;
 }
+
+.time-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:15px;
+    align-items:flex-end;
+}
+
+.time-box{
+    flex:1;
+}
+
+.break-box{
+    flex:0.6;
+}
+
+.time-box input{
+    margin-bottom:0;
+}
+
 </style>
 
 </head>
@@ -104,14 +124,24 @@ th{
     <option value="absence">欠勤</option>
 </select>
 
-<label>出勤時刻</label>
-<input type="text" id="start">
+<div class="time-row">
 
-<label>退勤時刻</label>
-<input type="text" id="end">
+    <div class="time-box">
+        <label>出勤時刻</label>
+        <input type="text" id="start">
+    </div>
 
-<label>休憩時間（分）</label>
-<input type="number" id="break" value="60">
+    <div class="time-box">
+        <label>退勤時刻</label>
+        <input type="text" id="end">
+    </div>
+
+    <div class="time-box break-box">
+        <label>休憩(分)</label>
+        <input type="number" id="break" value="60">
+    </div>
+
+</div>
 
 <button id="saveBtn" onclick="calc()">勤務を登録</button>
 
