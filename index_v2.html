@@ -905,11 +905,7 @@ ${r.date.substring(5)}
 </div>
 ``
 
-   <div>
-${r.type==="work" ? "出勤" :
-  r.type==="holiday" ? "休日" :
-  "欠勤"}
-</div> 
+<div>${r.type}</div> 
 
     <div>${r.start || "-"}</div>
 
