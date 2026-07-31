@@ -721,13 +721,13 @@ let overM = totalOver%60;
 
 document.getElementById("monthly").innerHTML = `
 
-<div style="display:flex;justify-content:space-between;font-weight:bold;margin-bottom:15px;">
+<div style="display:flex;justify-content:center;gap:80px;font-weight:bold;margin-bottom:5px;">
     <span>勤務回数 ${workCount}回</span>
     <span>休日 ${holidayCount}日</span>
     <span>欠勤 ${absenceCount}日</span>
 </div>
 
-<div style="display:flex;justify-content:space-between;font-weight:bold;">
+<div style="display:flex;justify-content:center;gap:80px;font-weight:bold;">
     <span>勤務時間 ${workH}時間${workM}分</span>
     <span>残業時間 ${overH}時間${overM}分</span>
 </div>
