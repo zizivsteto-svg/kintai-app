@@ -322,6 +322,14 @@ else{
 
 });
 
+document.getElementById("workDate")
+.addEventListener("change", function(){
+
+    document.getElementById("selectedDate").textContent =
+    "(" + this.value + ")";
+
+});
+
 loadData();
     
 function toggleWorkInputs(){
