@@ -272,34 +272,23 @@ style="display:none;"
 
     <div class="time-box">
         <label>出勤時刻</label>
-       <input
-type="text"
+<input
+type="tel"
 id="start"
-maxlength="5"
-placeholder="2300"
-oninput="
-let v=this.value.replace(/\D/g,'');
-if(v.length>=3){
-this.value=v.slice(0,2)+':'+v.slice(2,4);
-}else{
-this.value=v;
-}"> 
+inputmode="numeric"
+maxlength="4"
+placeholder="900">
+
     </div>
 
     <div class="time-box">
         <label>退勤時刻</label>
-        <input
-type="text"
+<input
+type="tel"
 id="end"
-maxlength="5"
-placeholder="2300"
-oninput="
-let v=this.value.replace(/\D/g,'');
-if(v.length>=3){
-this.value=v.slice(0,2)+':'+v.slice(2,4);
-}else{
-this.value=v;
-}">
+inputmode="numeric"
+maxlength="4"
+placeholder="1730">
     </div>
 
     <div class="time-box break-box">
@@ -489,6 +478,29 @@ if(!target){
 }
 
 target.end = end;
+
+function formatTime(v){
+
+    v = String(v).replace(/\D/g,'');
+
+    if(v.length===3){
+        v = "0" + v;
+    }
+
+    if(v.length!==4){
+        return null;
+    }
+
+    return v.slice(0,2)+":"+v.slice(2,4);
+}
+
+target.start = formatTime(target.start);
+end = formatTime(end);
+
+if(!target.start || !end){
+    alert("時刻は 900 や 1730 の形式で入力してください");
+    return;
+}
 
 let startMin =
 parseInt(target.start.split(":")[0]) * 60 +
