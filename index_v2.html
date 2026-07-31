@@ -477,21 +477,6 @@ if(!target){
     return;
 }
 
-function formatTime(v){
-
-    v = String(v).replace(/\D/g,'');
-
-    if(v.length===3){
-        v = "0" + v;
-    }
-
-    if(v.length!==4){
-        return null;
-    }
-
-    return v.slice(0,2)+":"+v.slice(2,4);
-}
-
 target.start = formatTime(target.start);
 end = formatTime(end);
 
@@ -548,6 +533,21 @@ loadData();
 
 alert("退勤時刻を更新しました");
 
+}
+
+function formatTime(v){
+
+    v = String(v).replace(/\D/g,'');
+
+    if(v.length===3){
+        v = "0" + v;
+    }
+
+    if(v.length!==4){
+        return null;
+    }
+
+    return v.slice(0,2)+":"+v.slice(2,4);
 }
 
 function calc(){
