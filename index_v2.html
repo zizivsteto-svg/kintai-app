@@ -885,7 +885,7 @@ alert("historyCards開始");
 
 let recent = records.slice(0,3);
 
-let cards = "TEST";
+let cards = "";
 
 recent.forEach(r=>{
 
@@ -894,9 +894,16 @@ alert("カード作成中");
 cards += `
 <div class="historyCard">
 
-    <div class="date">${r.date}</div>
+    <div class="date">
+${r.date.substring(5)}
+</div>
+``
 
-   <div>${r.type || "-"}</div> 
+   <div>
+${r.type==="work" ? "出勤" :
+  r.type==="holiday" ? "休日" :
+  "欠勤"}
+</div> 
 
     <div>${r.start || "-"}</div>
 
