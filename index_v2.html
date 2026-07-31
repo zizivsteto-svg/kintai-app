@@ -142,7 +142,11 @@ th{
 
     <label><input type="radio" name="dateType" value="tomorrow"> 翌日</label>
 
-    <label><input type="radio" name="dateType" value="custom"> 日付指定</label>
+   <label>
+<input type="radio" name="dateType" value="custom">
+日付指定
+<span id="selectedDate"></span>
+</label> 
 
 </div>
 
@@ -150,6 +154,7 @@ th{
 type="date"
 id="workDate"
 value=""
+style="display:none;"
 >
 
 <label>勤務区分</label>
@@ -284,24 +289,34 @@ document.querySelectorAll('input[name="dateType"]').forEach(radio => {
 
     radio.addEventListener("change", function(){
 
-        const workDate =
-        document.getElementById("workDate");
+if(this.value === "today"){
 
-        if(this.value === "today"){
+    document.getElementById("selectedDate").textContent =
+    "(" + formatDate(new Date()) + ")";
 
-            workDate.value =
-            formatDate(new Date());
+    document.getElementById("workDate").style.display =
+    "none";
 
-        }
-        else if(this.value === "tomorrow"){
+}
+else if(this.value === "tomorrow"){
 
-            let d = new Date();
+    let d = new Date();
 
-            d.setDate(d.getDate() + 1);
+    d.setDate(d.getDate() + 1);
 
-            workDate.value =
-            formatDate(d);
-        }
+    document.getElementById("selectedDate").textContent =
+    "(" + formatDate(d) + ")";
+
+    document.getElementById("workDate").style.display =
+    "none";
+
+}
+else{
+
+    document.getElementById("workDate").style.display =
+    "block";
+
+}
 
     });
 
@@ -432,9 +447,14 @@ function calc(){
         workDate=formatDate(d);
     }
     else{
-        workDate=
-        document.getElementById("workDate").value;
-    }
+
+    workDate =
+    document.getElementById("selectedDate")
+    .textContent
+    .replace("(","")
+    .replace(")","");
+
+}
 
     if(!workDate){
         alert("日付を選択してください");
