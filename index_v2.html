@@ -279,7 +279,34 @@ document.getElementById("workType")
 .addEventListener("change", toggleWorkInputs);
 
 toggleWorkInputs();
-    
+
+document.querySelectorAll('input[name="dateType"]').forEach(radio => {
+
+    radio.addEventListener("change", function(){
+
+        const workDate =
+        document.getElementById("workDate");
+
+        if(this.value === "today"){
+
+            workDate.value =
+            formatDate(new Date());
+
+        }
+        else if(this.value === "tomorrow"){
+
+            let d = new Date();
+
+            d.setDate(d.getDate() + 1);
+
+            workDate.value =
+            formatDate(d);
+        }
+
+    });
+
+});
+
 loadData();
     
 function toggleWorkInputs(){
