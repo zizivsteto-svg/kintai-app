@@ -258,13 +258,11 @@ this.value=v;
 
 <h2>月間集計</h2>
 
-<div class="month-row">
-
-    <span class="month-title">集計対象月</span>
-
-    <input type="month" id="monthFilter">
-
-</div>
+<input
+type="month"
+id="monthFilter"
+style="display:none;"
+>
 
 <div id="monthly"></div>
 
@@ -730,9 +728,16 @@ align-items:center;
 ">
 
     <div>
-        集計対象月
-        ${monthFilter.replace("-", "年")}月
-    </div>
+    集計対象月
+    <input
+    type="month"
+    id="monthFilterInline"
+    value="${monthFilter}"
+    onchange="
+    document.getElementById('monthFilter').value=this.value;
+    document.getElementById('monthFilter').dispatchEvent(new Event('change'));
+    ">
+</div>
 
     <div>
         勤務回数 ${workCount}回
