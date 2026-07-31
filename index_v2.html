@@ -277,17 +277,7 @@ type="tel"
 id="start"
 inputmode="numeric"
 maxlength="4"
-placeholder="730"
-oninput="
-let v=this.value.replace(/\D/g,'');
-
-if(v.length===3){
-    this.value='0'+v[0]+':'+v.slice(1);
-}
-else if(v.length===4){
-    this.value=v.slice(0,2)+':'+v.slice(2);
-}
-">
+placeholder="730">
 
     </div>
 
@@ -298,17 +288,7 @@ type="tel"
 id="end"
 inputmode="numeric"
 maxlength="4"
-placeholder="1730"
-oninput="
-let v=this.value.replace(/\D/g,'');
-
-if(v.length===3){
-    this.value='0'+v[0]+':'+v.slice(1);
-}
-else if(v.length===4){
-    this.value=v.slice(0,2)+':'+v.slice(2);
-}
-">
+placeholder="1730">
     </div>
 
     <div class="time-box break-box">
