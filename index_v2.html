@@ -123,6 +123,23 @@ th{
     margin:0;
 }
 
+.worktype-row{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    margin-bottom:15px;
+}
+
+.worktype-title{
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+.worktype-row select{
+    flex:1;
+    margin:0;
+}
+
 </style>
 
 </head>
@@ -157,12 +174,17 @@ value=""
 style="display:none;"
 >
 
-<label>勤務区分</label>
-<select id="workType">
-    <option value="work">出勤</option>
-    <option value="holiday">休日</option>
-    <option value="absence">欠勤</option>
-</select>
+<div class="worktype-row">
+
+    <span class="worktype-title">勤務区分</span>
+
+    <select id="workType">
+        <option value="work">出勤</option>
+        <option value="holiday">休日</option>
+        <option value="absence">欠勤</option>
+    </select>
+
+</div>
 
 <div class="time-row">
 
