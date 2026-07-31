@@ -727,12 +727,14 @@ font-weight:bold;
 align-items:center;
 ">
 
-    <div>
-    集計対象月
+    <div style="display:flex;align-items:center;gap:10px;">
+    <span>対象月</span>
+
     <input
     type="month"
     id="monthFilterInline"
     value="${monthFilter}"
+    style="margin:0;flex:1;"
     onchange="
     document.getElementById('monthFilter').value=this.value;
     document.getElementById('monthFilter').dispatchEvent(new Event('change'));
