@@ -157,6 +157,22 @@ th{
     margin:0;
 }
 
+.header-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:5px;
+}
+
+.header-row h3{
+    margin:0;
+}
+
+.header-row .worktype-row{
+    margin:0;
+    width:350px;
+}
+
 </style>
 
 </head>
@@ -166,7 +182,23 @@ th{
 
 <div class="card">
 
-<h3 id="today"></h3>
+<div class="header-row">
+
+    <h3 id="today"></h3>
+
+    <div class="worktype-row">
+
+        <span class="worktype-title">勤務区分</span>
+
+        <select id="workType">
+            <option value="work">出勤</option>
+            <option value="holiday">休日</option>
+            <option value="absence">欠勤</option>
+        </select>
+
+    </div>
+
+</div>
 
 <div class="date-row">
 
@@ -190,18 +222,6 @@ id="workDate"
 value=""
 style="display:none;"
 >
-
-<div class="worktype-row">
-
-    <span class="worktype-title">勤務区分</span>
-
-    <select id="workType">
-        <option value="work">出勤</option>
-        <option value="holiday">休日</option>
-        <option value="absence">欠勤</option>
-    </select>
-
-</div>
 
 <div class="time-row">
 
