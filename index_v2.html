@@ -477,8 +477,6 @@ if(!target){
     return;
 }
 
-target.end = end;
-
 function formatTime(v){
 
     v = String(v).replace(/\D/g,'');
@@ -501,6 +499,8 @@ if(!target.start || !end){
     alert("時刻は 900 や 1730 の形式で入力してください");
     return;
 }
+
+target.end = end;
 
 let startMin =
 parseInt(target.start.split(":")[0]) * 60 +
@@ -623,13 +623,22 @@ function calc(){
             return;
         }
 
-        let startMin=
-        parseInt(start.split(":")[0])*60+
-        parseInt(start.split(":")[1]);
+        start = formatTime(start);
+end   = formatTime(end);
 
-        let endMin=
-        parseInt(end.split(":")[0])*60+
-        parseInt(end.split(":")[1]);
+if(!start || !end){
+    alert("時刻は 730 や 1730 の形式で入力してください");
+    btn.disabled=false;
+    return;
+}
+
+let startMin=
+parseInt(start.split(":")[0])*60+
+parseInt(start.split(":")[1]);
+
+let endMin=
+parseInt(end.split(":")[0])*60+
+parseInt(end.split(":")[1]);
 
         if(endMin<startMin){
             endMin+=1440;
