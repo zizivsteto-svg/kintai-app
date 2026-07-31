@@ -218,25 +218,6 @@ th{
 
 }
 
-#historyCards{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:10px;
-}
-
-.historyCard{
-    background:#f8f8f8;
-    border:1px solid #ddd;
-    border-radius:10px;
-    padding:10px;
-    text-align:center;
-}
-
-.historyCard .date{
-    font-weight:bold;
-    margin-bottom:8px;
-}
-
 </style>
 
 </head>
@@ -345,9 +326,7 @@ style="display:none;"
 
 <h2>勤務履歴</h2>
 
-<div id="historyCards"></div>
-
-<table style="display:none;">
+<table>
 <thead>
 <tr>
 <th>日付</th>
@@ -881,60 +860,7 @@ align-items:center;
 document.getElementById("historyBody").innerHTML =
 html;
 
-alert("historyCards開始");
-
-let recent = records.slice(0,3);
-
-let cards = "";
-
-recent.forEach(r=>{
-
-alert("カード作成中");
-
-alert(JSON.stringify(r));
-
-alert("cards代入前");
-
-cards = "TEST";
-
-cards += `
-<div class="historyCard">
-
-    <div class="date">
-${r.date.substring(5)}
-</div>
-``
-
-<div>${r.type}</div> 
-
-    <div>${r.start || "-"}</div>
-
-    <div>${r.end || "-"}</div>
-
-    <div>
-    ${Math.floor((r.work || 0)/60)}h
-    ${(r.work || 0)%60}m
-    </div>
-
-    <div>
-    ${Math.floor((r.overtime || 0)/60)}h
-    ${(r.overtime || 0)%60}m
-    </div>
-
-</div>
-`;
-
-});
-
-alert("innerHTML直前");
-
-document.getElementById("historyCards").innerHTML =
-cards;
-
-console.log(cards);
-
-}
-  
+}  
 
 </script>
 </body>
