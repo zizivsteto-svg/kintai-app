@@ -747,8 +747,6 @@ loadData();
         
 function loadData(){
 
-alert("loadData開始");
-
 let records =
 JSON.parse(localStorage.getItem("records")) || [];
 
@@ -806,8 +804,6 @@ let workM = totalWork%60;
 
 let overH = Math.floor(totalOver/60);
 let overM = totalOver%60;
-
-alert("monthly直前");
 
 document.getElementById("monthly").innerHTML = `
 
