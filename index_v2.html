@@ -3,6 +3,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=devith, initial-scale=1.0">
 <title>勤怠管理アプリ</title>
+<meta name="theme-color" content="#1976d2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-512.png">
 
 <style>
 body{
@@ -573,7 +576,7 @@ breakInput.disabled = disabled;
 
 function updateEndTime(){
 
-let end =
+const end =
 document.getElementById("end").value;
 
 if(!end){
@@ -784,47 +787,34 @@ function calc(){
 
 
 start = formatTime(start);
+end   = formatTime(end);
 
-if(!start){
-    alert("出勤時刻は 730 や 1730 の形式で入力してください");
+if(!start || !end){
+    alert("時刻は 730 や 1730 の形式で入力してください");
     btn.disabled=false;
     return;
 }
 
-if(end){
-    end = formatTime(end);
+let startMin=
+parseInt(start.split(":")[0])*60+
+parseInt(start.split(":")[1]);
 
-    if(!end){
-        alert("退勤時刻は 730 や 1730 の形式で入力してください");
-        btn.disabled=false;
-        return;
+let endMin=
+parseInt(end.split(":")[0])*60+
+parseInt(end.split(":")[1]);
+
+        if(endMin<startMin){
+            endMin+=1440;
+        }
+
+        work=endMin-startMin-breakTime;
+
+        if(work<0){
+            work=0;
+        }
+
+        overtime=Math.max(0,work-480);
     }
-}else{
-    end = "";
-}
-
-if(end){
-
-    let startMin=
-    parseInt(start.split(":")[0])*60+
-    parseInt(start.split(":")[1]);
-
-    let endMin=
-    parseInt(end.split(":")[0])*60+
-    parseInt(end.split(":")[1]);
-
-    if(endMin<startMin){
-        endMin+=1440;
-    }
-
-    work=endMin-startMin-breakTime;
-
-    if(work<0){
-        work=0;
-    }
-
-    overtime=Math.max(0,work-480);
-}
 if(!work){
 work = 0;
 }
@@ -1069,5 +1059,12 @@ document.getElementById("historyPager").innerHTML = dates.length
 
 </script>
 
+<script>
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js");
+    });
+}
+</script>
 
 </body></html>
