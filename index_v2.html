@@ -764,8 +764,8 @@ function calc(){
 
     if(workType==="work"){
         
-    if(!start && !end){
-    alert("出勤時刻または退勤時刻を入力してください");
+    if(!start){
+    alert("出勤時刻を入力してください");
     btn.disabled=false;
     return;
 }
@@ -787,14 +787,15 @@ function calc(){
 
 
 start = formatTime(start);
-end   = formatTime(end);
+end   = end ? formatTime(end) : null;
 
-if(!start || !end){
+if(!start || (document.getElementById("end").value && !end)){
     alert("時刻は 730 や 1730 の形式で入力してください");
     btn.disabled=false;
     return;
 }
 
+if(end){
 let startMin=
 parseInt(start.split(":")[0])*60+
 parseInt(start.split(":")[1]);
@@ -814,6 +815,7 @@ parseInt(end.split(":")[1]);
         }
 
         overtime=Math.max(0,work-480);
+}
     }
 if(!work){
 work = 0;
@@ -828,14 +830,15 @@ overtime = 0;
     let oh=Math.floor(overtime/60);
     let om=overtime%60;
 
-    document.getElementById("result").innerHTML=
-    `
-    実働時間<br>
-    ${h}時間 ${m}分
-    <br><br>
-    残業時間<br>
-    ${oh}時間 ${om}分
-    `;
+    document.getElementById("result").innerHTML = end
+    ? `
+      実働時間<br>
+      ${h}時間 ${m}分
+      <br><br>
+      残業時間<br>
+      ${oh}時間 ${om}分
+      `
+    : "出勤を登録しました。退勤時刻は後で更新できます。";
 
     saveRecord(
         work,
