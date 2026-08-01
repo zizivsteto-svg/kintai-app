@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
+<html lang="ja"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=devith, initial-scale=1.0">
 <title>勤怠管理アプリ</title>
@@ -178,6 +177,78 @@ th{
     width:160px;
 }
 
+/* 勤務履歴：項目を縦軸、日付を横軸にする */
+.history-scroll{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+}
+
+.history-matrix{
+    width:auto;
+    min-width:352px;
+}
+
+.history-matrix th,
+.history-matrix td{
+    min-width:82px;
+    height:66px !important;
+    padding:2px !important;
+    line-height:1.2;
+    vertical-align:middle;
+    white-space:nowrap;
+    font-size:14px;
+}
+
+.history-matrix .history-label{
+    position:sticky;
+    left:0;
+    z-index:1;
+    width:106px;
+    min-width:106px;
+    background:#eef5ff;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.history-matrix .history-date{
+    background:#eef5ff;
+}
+
+.history-matrix .deleteBtn{
+    margin:0;
+}
+
+.history-pager{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:12px;
+    margin-top:16px;
+}
+
+.history-pager button{
+    width:auto;
+    margin:0;
+    padding:9px 16px;
+    font-size:14px;
+}
+
+.history-pager button:disabled{
+    background:#9aa8b8;
+    cursor:not-allowed;
+}
+
+.history-pager span{
+    font-size:14px;
+    color:#555;
+}
+
+.history-pager input[type="range"]{
+    flex:1;
+    margin:0;
+    accent-color:#1976d2;
+}
+
 @media (max-width:600px){
 
     body{
@@ -216,6 +287,34 @@ th{
         max-width:140px;
     }
 
+    /* 画面幅が狭いスマホでも、日付3列を横スクロールなしで表示する */
+    .history-scroll{
+        overflow-x:hidden;
+    }
+
+    .history-matrix{
+        width:100%;
+        min-width:0;
+        table-layout:fixed;
+    }
+
+    .history-matrix th,
+    .history-matrix td{
+        min-width:0;
+        padding:2px 1px !important;
+        font-size:13px;
+    }
+
+    .history-matrix .history-label{
+        width:58px;
+        min-width:58px;
+        font-size:16px;
+    }
+
+    .history-matrix .history-date{
+        font-size:12px;
+    }
+
 }
 
 </style>
@@ -229,7 +328,7 @@ th{
 
 <div class="header-row">
 
-    <h3 id="today"></h3>
+    <h3 id="today">本日 : 2026-08-01</h3>
 
     <div class="worktype-row">
 
@@ -249,7 +348,7 @@ th{
 
     <span class="date-title">勤務日</span>
 
-    <label><input type="radio" name="dateType" value="today" checked> 今日</label>
+    <label><input type="radio" name="dateType" value="today" checked=""> 今日</label>
 
     <label><input type="radio" name="dateType" value="tomorrow"> 翌日</label>
 
@@ -261,34 +360,19 @@ th{
 
 </div>
 
-<input
-type="date"
-id="workDate"
-value=""
-style="display:none;"
->
+<input type="date" id="workDate" value="" style="display:none;">
 
 <div class="time-row">
 
     <div class="time-box">
         <label>出勤時刻</label>
-<input
-type="tel"
-id="start"
-inputmode="numeric"
-maxlength="4"
-placeholder="730">
+<input type="tel" id="start" inputmode="numeric" maxlength="4" placeholder="15:59">
 
     </div>
 
     <div class="time-box">
         <label>退勤時刻</label>
-<input
-type="tel"
-id="end"
-inputmode="numeric"
-maxlength="4"
-placeholder="1730">
+<input type="tel" id="end" inputmode="numeric" maxlength="4" placeholder="15:59">
     </div>
 
     <div class="time-box break-box">
@@ -312,13 +396,50 @@ placeholder="1730">
 
 <h2>月間集計</h2>
 
-<input
-type="month"
-id="monthFilter"
-style="display:none;"
->
+<input type="month" id="monthFilter" style="display:none;">
 
-<div id="monthly"></div>
+<div id="monthly">
+
+<div style="
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:8px 40px;
+font-weight:bold;
+align-items:center;
+">
+
+    <div style="display:flex;align-items:center;gap:10px;">
+    <span>対象</span>
+
+    <input type="month" id="monthFilterInline" value="2026-08" style="margin:0;flex:1;" onchange="
+    document.getElementById('monthFilter').value=this.value;
+    document.getElementById('monthFilter').dispatchEvent(new Event('change'));
+    ">
+</div>
+
+    <div>
+        勤務回数 0回
+    </div>
+
+    <div>
+        勤務時間 0時間0分
+    </div>
+
+    <div>
+        休日 0日
+    </div>
+
+    <div>
+        残業時間 0時間0分
+    </div>
+
+    <div>
+        欠勤 0日
+    </div>
+
+</div>
+
+</div>
 
 </div>
 
@@ -326,22 +447,14 @@ style="display:none;"
 
 <h2>勤務履歴</h2>
 
-<table>
-<thead>
-<tr>
-<th>日付</th>
-<th>区分</th>
-<th>出勤</th>
-<th>退勤</th>
-<th>実働</th>
-<th>残業</th>
-<th>削除</th>
-</tr>
-</thead>
-
+<div class="history-scroll">
+<table class="history-matrix">
+<thead id="historyHead"></thead>
 <tbody id="historyBody"></tbody>
-
 </table>
+</div>
+
+<div class="history-pager" id="historyPager"></div>
 
 </div>
 
@@ -369,6 +482,9 @@ document.getElementById("start")
 
 document.getElementById("end")
 .placeholder = currentTime;
+
+setupTimeAutoFormat("start");
+setupTimeAutoFormat("end");
     
 document.getElementById("monthFilter").value =
 new Date().toISOString().slice(0,7);
@@ -425,6 +541,9 @@ document.getElementById("workDate")
     "(" + this.value + ")";
 
 });
+
+/* 初回の loadData 実行前に初期化する */
+let historyStart = 0;
 
 loadData();
     
@@ -547,7 +666,46 @@ function formatTime(v){
         return null;
     }
 
-    return v.slice(0,2)+":"+v.slice(2,4);
+    const hour = Number(v.slice(0,2));
+    const minute = Number(v.slice(2,4));
+
+    if(hour > 23 || minute > 59){
+        return null;
+    }
+
+    return hour + ":" + String(minute).padStart(2,"0");
+}
+
+function normalizeTimeInput(id){
+    const input = document.getElementById(id);
+    const formatted = formatTime(input.value);
+
+    if(formatted){
+        input.value = formatted;
+    }
+}
+
+function setupTimeAutoFormat(id){
+    const input = document.getElementById(id);
+
+    input.addEventListener("input", () => {
+        const digits = input.value.replace(/\D/g, "");
+
+        /* 4桁を打ち切った時だけ即時変換する。3桁は入力途中と見なす。 */
+        if(digits.length === 4){
+            normalizeTimeInput(id);
+        }
+    });
+
+    input.addEventListener("blur", () => {
+        normalizeTimeInput(id);
+    });
+
+    input.addEventListener("keydown", event => {
+        if(event.key === "Enter"){
+            normalizeTimeInput(id);
+        }
+    });
 }
 
 function calc(){
@@ -727,7 +885,11 @@ workType
 
     }
 
-    function deleteRecord(id){
+function deleteRecord(id){
+
+if(!confirm("この勤務履歴を削除しますか？")){
+    return;
+}
 
 let records =
 JSON.parse(localStorage.getItem("records")) || [];
@@ -745,6 +907,11 @@ loadData();
 
 }
         
+function moveHistoryPage(direction){
+    historyStart = Math.max(0, historyStart + direction);
+    loadData();
+}
+
 function loadData(){
 
 let records =
@@ -775,27 +942,6 @@ holidayCount++;
 else if(r.type==="absence"){
 absenceCount++;
 }
-
-html += `
-<tr>
-<td>${r.date}</td>
-<td>${
-r.type==="work" ? "出勤" :
-r.type==="holiday" ? "休日" :
-"欠勤"
-}</td>
-<td>${r.start || "-"}</td>
-<td>${r.end || "-"}</td>
-<td>${Math.floor((r.work||0)/60)}h${(r.work||0)%60}m</td>
-<td>${Math.floor((r.overtime||0)/60)}h${(r.overtime||0)%60}m</td>
-<td>
-<button class="deleteBtn"
-onclick="deleteRecord(${r.id})">
-削除
-</button>
-</td>
-</tr>
-`;
 
 });
 
@@ -853,11 +999,62 @@ align-items:center;
 
 `;
 
+/* 日付を横、項目を縦に配置。1画面には直近3日分を表示する。 */
+const recordsByDate = {};
+records.forEach(r => {
+    if(!recordsByDate[r.date]){
+        recordsByDate[r.date] = [];
+    }
+    recordsByDate[r.date].push(r);
+});
+
+const dates = Object.keys(recordsByDate).sort((a,b) => b.localeCompare(a));
+if(historyStart >= dates.length){
+    historyStart = Math.max(0, dates.length - 1);
+}
+
+const dateOffset = (date, days) => {
+    const d = new Date(date + "T12:00:00");
+    d.setDate(d.getDate() + days);
+    return formatDate(d);
+};
+
+/* 登録が1日分でも、基準日から翌日方向へ常に3日分の枠を表示する。 */
+const visibleDates = dates.length
+? [0, 1, 2].map(offset => dateOffset(dates[historyStart], offset))
+: [];
+
+const labels = ["日付", "区分", "出勤", "退勤", "実働", "残業", "削除"];
+const valueFor = (date, label) => {
+    const dayRecords = recordsByDate[date] || [];
+    const r = dayRecords[0];
+    if(!r) return "-";
+    if(label === "日付") return date;
+    if(label === "区分") return r.type === "work" ? "出勤" : r.type === "holiday" ? "休日" : "欠勤";
+    if(label === "出勤") return r.start || "-";
+    if(label === "退勤") return r.end || "-";
+    if(label === "実働") return `${Math.floor((r.work||0)/60)}h${(r.work||0)%60}m`;
+    if(label === "残業") return `${Math.floor((r.overtime||0)/60)}h${(r.overtime||0)%60}m`;
+    if(label === "削除") return `<button class="deleteBtn" onclick="deleteRecord(${r.id})">削除</button>`;
+    return "-";
+};
+
+document.getElementById("historyHead").innerHTML =
+`<tr><th class="history-label">項目</th>${visibleDates.map(d => `<th class="history-date">${d}</th>`).join("")}</tr>`;
+
 document.getElementById("historyBody").innerHTML =
-html;
+visibleDates.length
+? labels.map(label => `<tr><th class="history-label">${label}</th>${visibleDates.map(date => `<td>${valueFor(date,label)}</td>`).join("")}</tr>`).join("")
+: `<tr><td class="history-label">履歴</td><td>まだ勤務履歴はありません</td></tr>`;
+
+const maxHistoryStart = Math.max(0, dates.length - 1);
+document.getElementById("historyPager").innerHTML = dates.length
+? `<button onclick="moveHistoryPage(-2)" ${historyStart === 0 ? "disabled" : ""}>← 前の2日</button><input type="range" min="0" max="${maxHistoryStart}" value="${historyStart}" aria-label="勤務履歴を移動" ${maxHistoryStart === 0 ? "disabled" : ""} oninput="historyStart=Number(this.value);loadData()"><button onclick="moveHistoryPage(2)" ${historyStart >= maxHistoryStart ? "disabled" : ""}>次の2日 →</button><span>${maxHistoryStart === 0 ? "直近3日分を表示中" : "スライダーは1日単位で移動できます"}</span>`
+: "";
 
 }  
 
 </script>
-</body>
-</html>
+
+
+</body></html>
