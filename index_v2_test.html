@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=devith, initial-scale=1.0">
+<title>勤怠管理アプリ</title>
+
+<style>
+body{
+    font-family:sans-serif;
+    background:#f4f4f4;
+    max-width:700px;
+    margin:auto;
+    padding:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 2px 5px rgba(0,0,0,.15);
+    margin-bottom:20px;
+}
+
+h1,h2{
+    text-align:center;
+}
+
+input,select,button{
+    width:100%;
+    padding:12px;
+    margin-top:8px;
+    margin-bottom:15px;
+    box-sizing:border-box;
+}
+
+button{
+    background:#1976d2;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    background:#1565c0;
+}
+
+.result{
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+    margin-top:15px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:center;
+}
+
+th{
+    background:#eef5ff;
+}
+
+.deleteBtn{
+    background:#d32f2f;
+    width:auto;
+    padding:6px 10px;
+}
+
+.deleteBtn:hover{
+    background:#b71c1c;
+}
+
+.time-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:15px;
+    align-items:flex-end;
+}
+
+.time-box{
+    flex:1;
+}
+
+.break-box{
+    flex:0.6;
+}
+
+.time-box input{
+    margin-bottom:0;
+}
+
+.date-row{
+    display:flex;
+    gap:20px;
+    align-items:center;
+    margin:10px 0;
+}
+
+.date-row label{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    margin:0;
+}
+
+.date-title{
+    font-weight:bold;
+    margin-right:10px;
+    white-space:nowrap;
+}
+
+.date-row input{
+    width:auto;
+    margin:0;
+}
+
+.worktype-row{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    margin-bottom:15px;
+}
+
+.worktype-title{
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+.worktype-row select{
+    flex:1;
+    margin:0;
+}
+
+.month-row{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    margin-bottom:15px;
+}
+
+.month-title{
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+.month-row input{
+    flex:1;
+    margin:0;
+}
+
+.header-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:5px;
+}
+
+.header-row h3{
+    margin:0;
+}
+
+.header-row .worktype-row{
+    margin:0;
+    width:350px;
+}
+
+#monthFilterInline{
+    max-width:160px;
+    width:160px;
+}
+
+/* 勤務履歴：項目を縦軸、日付を横軸にする */
+.history-scroll{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+}
+
+.history-matrix{
+    width:auto;
+    min-width:352px;
+}
+
+.history-matrix th,
+.history-matrix td{
+    min-width:82px;
+    height:66px !important;
+    padding:2px !important;
+    line-height:1.2;
+    vertical-align:middle;
+    white-space:nowrap;
+    font-size:14px;
+}
+
+.history-matrix .history-label{
+    position:sticky;
+    left:0;
+    z-index:1;
+    width:106px;
+    min-width:106px;
+    background:#eef5ff;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.history-matrix .history-date{
+    background:#eef5ff;
+}
+
+.history-matrix .deleteBtn{
+    margin:0;
+}
+
+.history-pager{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:12px;
+    margin-top:16px;
+}
+
+.history-pager button{
+    width:auto;
+    margin:0;
+    padding:9px 16px;
+    font-size:14px;
+}
+
+.history-pager button:disabled{
+    background:#9aa8b8;
+    cursor:not-allowed;
+}
+
+.history-pager span{
+    font-size:14px;
+    color:#555;
+}
+
+.history-pager input[type="range"]{
+    flex:1;
+    margin:0;
+    accent-color:#1976d2;
+}
+
+@media (max-width:600px){
+
+    body{
+        padding:10px;
+    }
+
+    .card{
+        padding:15px;
+    }
+
+    .header-row{
+        flex-wrap:wrap;
+    }
+
+    .header-row .worktype-row{
+        width:220px;
+    }
+
+    .date-row{
+        gap:8px;
+    }
+
+    .date-row label{
+        font-size:14px;
+    }
+
+    .time-row{
+        gap:5px;
+    }
+
+    .time-box label{
+        font-size:14px;
+    }
+
+    #monthFilterInline{
+        max-width:140px;
+    }
+
+    /* 画面幅が狭いスマホでも、日付3列を横スクロールなしで表示する */
+    .history-scroll{
+        overflow-x:hidden;
+    }
+
+    .history-matrix{
+        width:100%;
+        min-width:0;
+        table-layout:fixed;
+    }
+
+    .history-matrix th,
+    .history-matrix td{
+        min-width:0;
+        padding:2px 1px !important;
+        font-size:13px;
+    }
+
+    .history-matrix .history-label{
+        width:58px;
+        min-width:58px;
+        font-size:16px;
+    }
+
+    .history-matrix .history-date{
+        font-size:12px;
+    }
+
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>勤怠管理アプリ</h1>
+
+<div class="card">
+
+<div class="header-row">
+
+    <h3 id="today">本日 : 2026-08-01</h3>
+
+    <div class="worktype-row">
+
+        <span class="worktype-title">勤務区分</span>
+
+        <select id="workType">
+            <option value="work">出勤</option>
+            <option value="holiday">休日</option>
+            <option value="absence">欠勤</option>
+        </select>
+
+    </div>
+
+</div>
+
+<div class="date-row">
+
+    <span class="date-title">勤務日</span>
+
+    <label><input type="radio" name="dateType" value="today" checked=""> 今日</label>
+
+    <label><input type="radio" name="dateType" value="tomorrow"> 翌日</label>
+
+   <label>
+<input type="radio" name="dateType" value="custom">
+日付指定
+<span id="selectedDate"></span>
+</label> 
+
+</div>
+
+<input type="date" id="workDate" value="" style="display:none;">
+
+<div class="time-row">
+
+    <div class="time-box">
+        <label>出勤時刻</label>
+<input type="tel" id="start" inputmode="numeric" maxlength="4" placeholder="15:59">
+
+    </div>
+
+    <div class="time-box">
+        <label>退勤時刻</label>
+<input type="tel" id="end" inputmode="numeric" maxlength="4" placeholder="15:59">
+    </div>
+
+    <div class="time-box break-box">
+        <label>休憩(分)</label>
+        <input type="number" id="break" value="60">
+    </div>
+
+</div>
+
+<button id="saveBtn" onclick="calc()">勤務を登録</button>
+
+<button onclick="updateEndTime()">
+退勤のみ更新
+</button>
+    
+<div class="result" id="result"></div>
+
+</div>
+
+<div class="card">
+
+<h2>月間集計</h2>
+
+<input type="month" id="monthFilter" style="display:none;">
+
+<div id="monthly">
+
+<div style="
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:8px 40px;
+font-weight:bold;
+align-items:center;
+">
+
+    <div style="display:flex;align-items:center;gap:10px;">
+    <span>対象</span>
+
+    <input type="month" id="monthFilterInline" value="2026-08" style="margin:0;flex:1;" onchange="
+    document.getElementById('monthFilter').value=this.value;
+    document.getElementById('monthFilter').dispatchEvent(new Event('change'));
+    ">
+</div>
+
+    <div>
+        勤務回数 0回
+    </div>
+
+    <div>
+        勤務時間 0時間0分
+    </div>
+
+    <div>
+        休日 0日
+    </div>
+
+    <div>
+        残業時間 0時間0分
+    </div>
+
+    <div>
+        欠勤 0日
+    </div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>勤務履歴</h2>
+
+<div class="history-scroll">
+<table class="history-matrix">
+<thead id="historyHead"></thead>
+<tbody id="historyBody"></tbody>
+</table>
+</div>
+
+<div class="history-pager" id="historyPager"></div>
+
+</div>
+
+<script>
+
+function formatDate(date){
+    return date.toISOString().split("T")[0];
+}
+
+document.getElementById("today").textContent =
+"本日 : " + formatDate(new Date());
+
+document.getElementById("workDate").value =
+formatDate(new Date());
+
+ const now = new Date();
+
+const currentTime =
+String(now.getHours()).padStart(2,"0")
++ ":"
++ String(now.getMinutes()).padStart(2,"0");
+
+document.getElementById("start")
+.placeholder = currentTime;
+
+document.getElementById("end")
+.placeholder = currentTime;
+
+setupTimeAutoFormat("start");
+setupTimeAutoFormat("end");
+    
+document.getElementById("monthFilter").value =
+new Date().toISOString().slice(0,7);
+
+document.getElementById("monthFilter")
+.addEventListener("change", loadData);
+    
+document.getElementById("workType")
+.addEventListener("change", toggleWorkInputs);
+
+toggleWorkInputs();
+
+document.querySelectorAll('input[name="dateType"]').forEach(radio => {
+
+    radio.addEventListener("change", function(){
+
+if(this.value === "today"){
+
+    document.getElementById("selectedDate").textContent =
+    "(" + formatDate(new Date()) + ")";
+
+    document.getElementById("workDate").style.display =
+    "none";
+
+}
+else if(this.value === "tomorrow"){
+
+    let d = new Date();
+
+    d.setDate(d.getDate() + 1);
+
+    document.getElementById("selectedDate").textContent =
+    "(" + formatDate(d) + ")";
+
+    document.getElementById("workDate").style.display =
+    "none";
+
+}
+else{
+
+    document.getElementById("workDate").style.display =
+    "block";
+
+}
+
+    });
+
+});
+
+document.getElementById("workDate")
+.addEventListener("change", function(){
+
+    document.getElementById("selectedDate").textContent =
+    "(" + this.value + ")";
+
+});
+
+/* 初回の loadData 実行前に初期化する */
+let historyStart = 0;
+
+loadData();
+    
+function toggleWorkInputs(){
+
+const workType =
+document.getElementById("workType").value;
+
+const start =
+document.getElementById("start");
+
+const end =
+document.getElementById("end");
+
+const breakInput =
+document.getElementById("break");
+
+const disabled =
+(workType === "holiday" ||
+ workType === "absence");
+
+start.disabled = disabled;
+end.disabled = disabled;
+breakInput.disabled = disabled;
+
+}
+
+function updateEndTime(){
+
+const end =
+document.getElementById("end").value;
+
+if(!end){
+    alert("退勤時刻を入力してください");
+    return;
+}
+
+let records =
+JSON.parse(localStorage.getItem("records")) || [];
+
+let target =
+records.find(r =>
+    r.type === "work" &&
+    r.start &&
+    (!r.end || r.end === "-")
+);
+
+if(!target){
+    alert("未退勤の勤務が見つかりません");
+    return;
+}
+
+target.start = formatTime(target.start);
+end = formatTime(end);
+
+if(!target.start || !end){
+    alert("時刻は 900 や 1730 の形式で入力してください");
+    return;
+}
+
+target.end = end;
+
+let startMin =
+parseInt(target.start.split(":")[0]) * 60 +
+parseInt(target.start.split(":")[1]);
+
+let endMin =
+parseInt(end.split(":")[0]) * 60 +
+parseInt(end.split(":")[1]);
+
+if(endMin < startMin){
+    endMin += 1440;
+}
+
+let work =
+endMin - startMin - (target.breakTime || 0);
+
+if(work < 0){
+    work = 0;
+}
+
+target.work = work;
+target.overtime = Math.max(0, work - 480);
+
+let h = Math.floor(work/60);
+let m = work%60;
+
+let oh = Math.floor(target.overtime/60);
+let om = target.overtime%60;
+
+document.getElementById("result").innerHTML =
+`
+実働時間<br>
+${h}時間 ${m}分
+<br><br>
+残業時間<br>
+${oh}時間 ${om}分
+`;
+
+localStorage.setItem(
+    "records",
+    JSON.stringify(records)
+);
+
+loadData();
+
+alert("退勤時刻を更新しました");
+
+}
+
+function formatTime(v){
+
+    v = String(v).replace(/\D/g,'');
+
+    if(v.length===3){
+        v = "0" + v;
+    }
+
+    if(v.length!==4){
+        return null;
+    }
+
+    const hour = Number(v.slice(0,2));
+    const minute = Number(v.slice(2,4));
+
+    if(hour > 23 || minute > 59){
+        return null;
+    }
+
+    return hour + ":" + String(minute).padStart(2,"0");
+}
+
+function normalizeTimeInput(id){
+    const input = document.getElementById(id);
+    const formatted = formatTime(input.value);
+
+    if(formatted){
+        input.value = formatted;
+    }
+}
+
+function setupTimeAutoFormat(id){
+    const input = document.getElementById(id);
+
+    input.addEventListener("input", () => {
+        const digits = input.value.replace(/\D/g, "");
+
+        /* 4桁を打ち切った時だけ即時変換する。3桁は入力途中と見なす。 */
+        if(digits.length === 4){
+            normalizeTimeInput(id);
+        }
+    });
+
+    input.addEventListener("blur", () => {
+        normalizeTimeInput(id);
+    });
+
+    input.addEventListener("keydown", event => {
+        if(event.key === "Enter"){
+            normalizeTimeInput(id);
+        }
+    });
+}
+
+function calc(){
+
+    const btn=document.getElementById("saveBtn");
+    btn.disabled=true;
+
+    const workType=
+    document.getElementById("workType").value;
+
+    const dateType=
+    document.querySelector(
+    'input[name="dateType"]:checked'
+    ).value;
+
+    let workDate;
+
+    if(dateType==="today"){
+        workDate=formatDate(new Date());
+    }
+    else if(dateType==="tomorrow"){
+        let d=new Date();
+        d.setDate(d.getDate()+1);
+        workDate=formatDate(d);
+    }
+    else{
+
+    workDate =
+    document.getElementById("selectedDate")
+    .textContent
+    .replace("(","")
+    .replace(")","");
+
+}
+
+    if(!workDate){
+        alert("日付を選択してください");
+        btn.disabled=false;
+        return;
+    }
+
+    let start=
+    document.getElementById("start").value;
+
+    let end=
+    document.getElementById("end").value;
+
+    const breakTime=
+    parseInt(document.getElementById("break").value)||0;
+
+    let work=0;
+    let overtime=0;
+
+    if(workType==="work"){
+        
+    if(!start && !end){
+    alert("出勤時刻または退勤時刻を入力してください");
+    btn.disabled=false;
+    return;
+}
+
+        const exists=
+        (JSON.parse(localStorage.getItem("records")) || [])
+        .some(r =>
+            r.date===workDate &&
+            r.start===start &&
+            r.end===end
+        );
+
+        if(exists){
+            alert("同じ勤務が登録されています");
+            btn.disabled=false;
+            return;
+        }
+
+
+
+start = formatTime(start);
+end   = formatTime(end);
+
+if(!start || !end){
+    alert("時刻は 730 や 1730 の形式で入力してください");
+    btn.disabled=false;
+    return;
+}
+
+let startMin=
+parseInt(start.split(":")[0])*60+
+parseInt(start.split(":")[1]);
+
+let endMin=
+parseInt(end.split(":")[0])*60+
+parseInt(end.split(":")[1]);
+
+        if(endMin<startMin){
+            endMin+=1440;
+        }
+
+        work=endMin-startMin-breakTime;
+
+        if(work<0){
+            work=0;
+        }
+
+        overtime=Math.max(0,work-480);
+    }
+if(!work){
+work = 0;
+}
+
+if(!overtime){
+overtime = 0;
+}
+    let h=Math.floor(work/60);
+    let m=work%60;
+
+    let oh=Math.floor(overtime/60);
+    let om=overtime%60;
+
+    document.getElementById("result").innerHTML=
+    `
+    実働時間<br>
+    ${h}時間 ${m}分
+    <br><br>
+    残業時間<br>
+    ${oh}時間 ${om}分
+    `;
+
+    saveRecord(
+        work,
+        overtime,
+        start,
+        end,
+        breakTime,
+        workDate,
+        workType
+    );
+
+    setTimeout(()=>{
+        btn.disabled=false;
+    },1000);
+}
+
+function saveRecord(
+work,
+overtime,
+start,
+end,
+breakTime,
+workDate,
+workType
+){
+
+    let records=
+    JSON.parse(localStorage.getItem("records")) || [];
+    
+    records.unshift({
+        id:Date.now(),
+        date:workDate,
+        type:workType,
+        start:start,
+        end:end,
+        breakTime:breakTime,
+        work:work,
+        overtime:overtime
+    });
+
+    localStorage.setItem(
+        "records",
+        JSON.stringify(records)
+    );
+
+    loadData();
+
+    document.getElementById("start").value="";
+    document.getElementById("end").value="";
+
+    }
+
+function deleteRecord(id){
+
+if(!confirm("この勤務履歴を削除しますか？")){
+    return;
+}
+
+let records =
+JSON.parse(localStorage.getItem("records")) || [];
+
+records = records.filter(
+r => r.id !== id
+);
+
+localStorage.setItem(
+"records",
+JSON.stringify(records)
+);
+
+loadData();
+
+}
+        
+function moveHistoryPage(direction){
+    historyStart = Math.max(0, historyStart + direction);
+    loadData();
+}
+
+function loadData(){
+
+let records =
+JSON.parse(localStorage.getItem("records")) || [];
+
+let totalWork = 0;
+let totalOver = 0;
+
+let workCount = 0;
+let holidayCount = 0;
+let absenceCount = 0;
+
+let html = "";
+
+const monthFilter =
+document.getElementById("monthFilter").value;
+
+records.forEach(r=>{
+
+if(r.type==="work"){
+workCount++;
+totalWork += r.work || 0;
+totalOver += r.overtime || 0;
+}
+else if(r.type==="holiday"){
+holidayCount++;
+}
+else if(r.type==="absence"){
+absenceCount++;
+}
+
+});
+
+let workH = Math.floor(totalWork/60);
+let workM = totalWork%60;
+
+let overH = Math.floor(totalOver/60);
+let overM = totalOver%60;
+
+document.getElementById("monthly").innerHTML = `
+
+<div style="
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:8px 40px;
+font-weight:bold;
+align-items:center;
+">
+
+    <div style="display:flex;align-items:center;gap:10px;">
+    <span>対象</span>
+
+    <input
+    type="month"
+    id="monthFilterInline"
+    value="${monthFilter}"
+    style="margin:0;flex:1;"
+    onchange="
+    document.getElementById('monthFilter').value=this.value;
+    document.getElementById('monthFilter').dispatchEvent(new Event('change'));
+    ">
+</div>
+
+    <div>
+        勤務回数 ${workCount}回
+    </div>
+
+    <div>
+        勤務時間 ${workH}時間${workM}分
+    </div>
+
+    <div>
+        休日 ${holidayCount}日
+    </div>
+
+    <div>
+        残業時間 ${overH}時間${overM}分
+    </div>
+
+    <div>
+        欠勤 ${absenceCount}日
+    </div>
+
+</div>
+
+`;
+
+/* 日付を横、項目を縦に配置。1画面には直近3日分を表示する。 */
+const recordsByDate = {};
+records.forEach(r => {
+    if(!recordsByDate[r.date]){
+        recordsByDate[r.date] = [];
+    }
+    recordsByDate[r.date].push(r);
+});
+
+const dates = Object.keys(recordsByDate).sort((a,b) => b.localeCompare(a));
+if(historyStart >= dates.length){
+    historyStart = Math.max(0, dates.length - 1);
+}
+
+const dateOffset = (date, days) => {
+    const d = new Date(date + "T12:00:00");
+    d.setDate(d.getDate() - days);
+    return formatDate(d);
+};
+
+/* 登録が1日分でも、最新日から常に3日分の枠を表示する。 */
+const visibleDates = dates.length
+? [0, 1, 2].map(offset => dateOffset(dates[historyStart], offset))
+: [];
+
+const labels = ["日付", "区分", "出勤", "退勤", "実働", "残業", "削除"];
+const valueFor = (date, label) => {
+    const dayRecords = recordsByDate[date] || [];
+    const r = dayRecords[0];
+    if(!r) return "-";
+    if(label === "日付") return date;
+    if(label === "区分") return r.type === "work" ? "出勤" : r.type === "holiday" ? "休日" : "欠勤";
+    if(label === "出勤") return r.start || "-";
+    if(label === "退勤") return r.end || "-";
+    if(label === "実働") return `${Math.floor((r.work||0)/60)}h${(r.work||0)%60}m`;
+    if(label === "残業") return `${Math.floor((r.overtime||0)/60)}h${(r.overtime||0)%60}m`;
+    if(label === "削除") return `<button class="deleteBtn" onclick="deleteRecord(${r.id})">削除</button>`;
+    return "-";
+};
+
+document.getElementById("historyHead").innerHTML =
+`<tr><th class="history-label">項目</th>${visibleDates.map(d => `<th class="history-date">${d}</th>`).join("")}</tr>`;
+
+document.getElementById("historyBody").innerHTML =
+visibleDates.length
+? labels.map(label => `<tr><th class="history-label">${label}</th>${visibleDates.map(date => `<td>${valueFor(date,label)}</td>`).join("")}</tr>`).join("")
+: `<tr><td class="history-label">履歴</td><td>まだ勤務履歴はありません</td></tr>`;
+
+const maxHistoryStart = Math.max(0, dates.length - 1);
+document.getElementById("historyPager").innerHTML = dates.length
+? `<button onclick="moveHistoryPage(-2)" ${historyStart === 0 ? "disabled" : ""}>← 前の2日</button><input type="range" min="0" max="${maxHistoryStart}" value="${historyStart}" aria-label="勤務履歴を移動" ${maxHistoryStart === 0 ? "disabled" : ""} oninput="historyStart=Number(this.value);loadData()"><button onclick="moveHistoryPage(2)" ${historyStart >= maxHistoryStart ? "disabled" : ""}>次の2日 →</button><span>${maxHistoryStart === 0 ? "直近3日分を表示中" : "スライダーは1日単位で移動できます"}</span>`
+: "";
+
+}  
+
+</script>
+
+
+</body></html>
