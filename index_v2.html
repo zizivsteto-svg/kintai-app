@@ -38,8 +38,25 @@ h1,h2{
 .install-app button{
     margin:0;
     width:auto;
+    padding:7px 11px;
+    border-radius:50%;
+    font-size:12px;
+    box-shadow:0 2px 5px rgba(0,0,0,.2);
+}
+
+.refresh-app{
+    position:fixed;
+    top:12px;
+    left:12px;
+    z-index:10;
+}
+
+.refresh-app button{
+    width:auto;
+    margin:0;
     padding:7px 10px;
     border-radius:16px;
+    background:#1976d2;
     font-size:12px;
     box-shadow:0 2px 5px rgba(0,0,0,.2);
 }
@@ -345,6 +362,10 @@ th{
 
 <div class="install-app">
 <button id="installAppBtn" type="button" hidden>アプリとして追加</button>
+</div>
+
+<div class="refresh-app">
+<button type="button" onclick="window.location.reload()" aria-label="更新" title="更新">↻</button>
 </div>
 
 <div class="card">
