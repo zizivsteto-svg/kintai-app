@@ -268,6 +268,35 @@ th{
     gap:6px;
 }
 
+.backup-menu{
+    position:relative;
+}
+
+.backup-menu-options{
+    position:absolute;
+    right:0;
+    bottom:calc(100% + 6px);
+    width:220px;
+    padding:8px;
+    background:white;
+    border:1px solid #d6dce3;
+    border-radius:8px;
+    box-shadow:0 3px 10px rgba(0,0,0,.18);
+}
+
+.history-pager .backup-menu-options button{
+    display:block;
+    width:100%;
+    margin:0 0 10px;
+    padding:12px 10px;
+    font-size:16px;
+}
+
+.history-pager .backup-menu-options button:last-child{
+    margin-bottom:0;
+    background:#607d8b;
+}
+
 .history-pager button{
     width:auto;
     margin:0;
@@ -982,6 +1011,41 @@ function saveBackup(){
     link.click();
     URL.revokeObjectURL(url);
 }
+
+function toggleBackupMenu(){
+    const menu = document.getElementById("backupMenuOptions");
+    if(menu){
+        menu.hidden = !menu.hidden;
+    }
+}
+
+function restoreBackup(input){
+    const file = input.files && input.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = event => {
+        try{
+            const backup = JSON.parse(event.target.result);
+            const records = Array.isArray(backup) ? backup : backup.records;
+            if(!Array.isArray(records)) throw new Error("invalid backup");
+
+            if(!confirm(`${records.length}件の勤務履歴で、現在の記録を置き換えますか？`)){
+                input.value = "";
+                return;
+            }
+
+            localStorage.setItem("records", JSON.stringify(records));
+            historyStart = -1;
+            loadData();
+            alert("バックアップを復元しました");
+        }catch(error){
+            alert("バックアップファイルを読み込めませんでした");
+        }
+        input.value = "";
+    };
+    reader.readAsText(file);
+}
         
 function moveHistoryPage(direction){
     historyStart = Math.max(0, historyStart + direction);
@@ -1132,7 +1196,7 @@ visibleDates.length
 
 const maxHistoryStart = Math.max(0, dates.length - 1);
 document.getElementById("historyPager").innerHTML = dates.length
-? `<div class="history-navigation"><button onclick="moveHistoryPage(-2)" ${historyStart === 0 ? "disabled" : ""}>← 前の2日</button><input type="range" min="0" max="${maxHistoryStart}" value="${historyStart}" aria-label="勤務履歴を移動" ${maxHistoryStart === 0 ? "disabled" : ""} oninput="historyStart=Number(this.value);loadData()"><button onclick="moveHistoryPage(2)" ${historyStart >= maxHistoryStart ? "disabled" : ""}>次の2日 →</button></div><button type="button" onclick="saveBackup()">保存</button>`
+? `<div class="history-navigation"><button onclick="moveHistoryPage(-2)" ${historyStart === 0 ? "disabled" : ""}>← 前の2日</button><input type="range" min="0" max="${maxHistoryStart}" value="${historyStart}" aria-label="勤務履歴を移動" ${maxHistoryStart === 0 ? "disabled" : ""} oninput="historyStart=Number(this.value);loadData()"><button onclick="moveHistoryPage(2)" ${historyStart >= maxHistoryStart ? "disabled" : ""}>次の2日 →</button></div><div class="backup-menu"><button type="button" onclick="toggleBackupMenu()">保存</button><div class="backup-menu-options" id="backupMenuOptions" hidden><button type="button" onclick="saveBackup()">バックアップを保存</button><button type="button" onclick="document.getElementById('backupFileInput').click()">バックアップを復元</button><input id="backupFileInput" type="file" accept="application/json,.json" hidden onchange="restoreBackup(this)"></div></div>`
 : "";
 
 }  
