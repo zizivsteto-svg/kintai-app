@@ -546,7 +546,8 @@ document.getElementById("workDate")
 });
 
 /* 初回の loadData 実行前に初期化する */
-let historyStart = 0;
+/* -1 は、初回表示時に最新の記録日を基準にする印 */
+let historyStart = -1;
 
 loadData();
     
@@ -1021,7 +1022,11 @@ records.forEach(r => {
     recordsByDate[r.date].push(r);
 });
 
-const dates = Object.keys(recordsByDate).sort((a,b) => b.localeCompare(a));
+/* 古い日付から新しい日付へ並べるため、前後ボタンと日付の向きを一致させる */
+const dates = Object.keys(recordsByDate).sort((a,b) => a.localeCompare(b));
+if(historyStart === -1 && dates.length){
+    historyStart = dates.length - 1;
+}
 if(historyStart >= dates.length){
     historyStart = Math.max(0, dates.length - 1);
 }
