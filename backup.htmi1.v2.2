@@ -213,6 +213,48 @@ th{
     width:160px;
 }
 
+.overtime-meter{
+    grid-column:1 / -1;
+    margin-top:4px;
+}
+
+.overtime-meter-label{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:6px;
+    font-size:14px;
+}
+
+.overtime-meter-track{
+    height:12px;
+    overflow:hidden;
+    background:#dfe7ef;
+    border-radius:999px;
+}
+
+.overtime-meter-bar{
+    height:100%;
+    border-radius:inherit;
+    background:#1976d2;
+    transition:width .2s ease;
+}
+
+.overtime-meter.caution .overtime-meter-bar{
+    background:#f9a825;
+}
+
+.overtime-meter.caution .overtime-meter-label{
+    color:#a96900;
+}
+
+.overtime-meter.danger .overtime-meter-bar{
+    background:#e53935;
+}
+
+.overtime-meter.danger .overtime-meter-label{
+    color:#c62828;
+}
+
 /* 勤務履歴：項目を縦軸、日付を横軸にする */
 .history-scroll{
     overflow-x:auto;
@@ -1077,7 +1119,6 @@ if(r.start && r.end && r.end !== "-"){
 workCount++;
 }
 totalWork += r.work || 0;
-totalOver += r.overtime || 0;
 }
 else if(r.type==="holiday"){
 holidayCount++;
@@ -1088,11 +1129,53 @@ absenceCount++;
 
 });
 
+/*
+  残業は二重計算しない。
+  1) 1日8時間を超えた分は、その日の残業として加算
+  2) 日ごとの8時間までを週（日〜土）で合計し、40時間を超えた追加分だけを加算
+     この週超過分は、次の日曜日になってから週初め（日曜）の月へ反映する
+*/
+const DAILY_LIMIT = 8 * 60;
+const WEEKLY_LIMIT = 40 * 60;
+const weeklyBaseMinutes = {};
+
+records.filter(r => r.type === "work" && r.start && r.end && r.end !== "-").forEach(r => {
+    const workMinutes = Number(r.work) || 0;
+
+    // 1日8時間超の分は、その勤務日の月へ入れる
+    if(String(r.date || "").slice(0,7) === monthFilter){
+        totalOver += Math.max(0, workMinutes - DAILY_LIMIT);
+    }
+
+    // 週40時間の判定には、日ごとの8時間超を除いた分だけを使う
+    const date = new Date(String(r.date) + "T12:00:00");
+    date.setDate(date.getDate() - date.getDay());
+    const weekStart = formatDate(date);
+    weeklyBaseMinutes[weekStart] = (weeklyBaseMinutes[weekStart] || 0) + Math.min(workMinutes, DAILY_LIMIT);
+});
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+Object.entries(weeklyBaseMinutes).forEach(([weekStart, baseMinutes]) => {
+    const nextSunday = new Date(weekStart + "T00:00:00");
+    nextSunday.setDate(nextSunday.getDate() + 7);
+    const weeklyExtra = Math.max(0, baseMinutes - WEEKLY_LIMIT);
+
+    // 週が終わった後だけ、週40時間超の追加分を週初めの月に加える
+    if(nextSunday <= today && weekStart.slice(0,7) === monthFilter){
+        totalOver += weeklyExtra;
+    }
+});
+
 let workH = Math.floor(totalWork/60);
 let workM = totalWork%60;
 
 let overH = Math.floor(totalOver/60);
 let overM = totalOver%60;
+let overtimeMeterWidth = Math.min(100, totalOver / 60);
+let overtimeLevel = totalOver >= 74 * 60 ? "danger" : totalOver >= 65 * 60 ? "caution" : "";
+let overtimeMessage = totalOver >= 74 * 60 ? "（74時間以上：警告）" : totalOver >= 65 * 60 ? "（65時間以上：注意）" : "";
 
 document.getElementById("monthly").innerHTML = `
 
@@ -1138,6 +1221,16 @@ align-items:center;
         欠勤 ${absenceCount}日
     </div>
 
+    <div class="overtime-meter ${overtimeLevel}">
+        <div class="overtime-meter-label">
+            <span>残業メーター（日8h・週40h超）</span>
+            <span>${overH}時間${overM}分 / 100時間${overtimeMessage}</span>
+        </div>
+        <div class="overtime-meter-track">
+            <div class="overtime-meter-bar" style="width:${overtimeMeterWidth}%;"></div>
+        </div>
+    </div>
+
 </div>
 
 `;
@@ -1171,7 +1264,7 @@ const visibleDates = dates.length
 ? [0, 1, 2].map(offset => dateOffset(dates[historyStart], offset))
 : [];
 
-const labels = ["日付", "区分", "出勤", "退勤", "実働", "残業", "削除"];
+const labels = ["日付", "区分", "出勤", "退勤", "拘束", "実働", "残業", "削除"];
 const valueFor = (date, label) => {
     const dayRecords = recordsByDate[date] || [];
     const r = dayRecords[0];
@@ -1180,6 +1273,11 @@ const valueFor = (date, label) => {
     if(label === "区分") return r.type === "work" ? "出勤" : r.type === "holiday" ? "休日" : "欠勤";
     if(label === "出勤") return r.start || "-";
     if(label === "退勤") return r.end || "-";
+    if(label === "拘束"){
+        if(r.type !== "work" || !r.start || !r.end || r.end === "-") return "-";
+        const bound = (r.work || 0) + (r.breakTime || 0);
+        return `${Math.floor(bound/60)}h${bound%60}m`;
+    }
     if(label === "実働") return `${Math.floor((r.work||0)/60)}h${(r.work||0)%60}m`;
     if(label === "残業") return `${Math.floor((r.overtime||0)/60)}h${(r.overtime||0)%60}m`;
     if(label === "削除") return `<button class="deleteBtn" onclick="deleteRecord(${r.id})">削除</button>`;
