@@ -943,7 +943,9 @@ document.getElementById("monthFilter").value;
 records.forEach(r=>{
 
 if(r.type==="work"){
+if(r.start && r.end && r.end !== "-"){
 workCount++;
+}
 totalWork += r.work || 0;
 totalOver += r.overtime || 0;
 }
