@@ -29,12 +29,19 @@ h1,h2{
 }
 
 .install-app{
-    text-align:center;
-    margin:-4px 0 18px;
+    position:fixed;
+    top:12px;
+    right:12px;
+    z-index:10;
 }
 
 .install-app button{
     margin:0;
+    width:auto;
+    padding:7px 10px;
+    border-radius:16px;
+    font-size:12px;
+    box-shadow:0 2px 5px rgba(0,0,0,.2);
 }
 
 input,select,button{
@@ -337,7 +344,7 @@ th{
 <h1>勤怠管理アプリ</h1>
 
 <div class="install-app">
-<button id="installAppBtn" type="button">アプリとして追加</button>
+<button id="installAppBtn" type="button" hidden>アプリとして追加</button>
 </div>
 
 <div class="card">
@@ -1097,10 +1104,11 @@ if ("serviceWorker" in navigator) {
 let deferredInstallPrompt;
 const installAppBtn = document.getElementById("installAppBtn");
 const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
 
-if (isIos && !window.navigator.standalone) {
-    installAppBtn.hidden = false;
-}
+// ホーム画面から起動したアプリでは追加ボタンを表示しない
+installAppBtn.hidden = isStandalone;
 
 window.addEventListener("beforeinstallprompt", event => {
     event.preventDefault();
