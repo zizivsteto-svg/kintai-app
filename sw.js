@@ -1,8 +1,9 @@
-const CACHE_NAME = "kintai-app-v1";
+const CACHE_NAME = "kintai-app-v5";
 const APP_FILES = [
   "./index_v2.html",
   "./manifest.webmanifest",
-  "./icon-512.png"
+  "./icon-512.png",
+  "./worktime-dog-mascot.png"
 ];
 
 self.addEventListener("install", event => {

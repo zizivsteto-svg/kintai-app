@@ -28,6 +28,77 @@ h1,h2{
     text-align:center;
 }
 
+.mascot-greeting{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:2px;
+    margin:-2px 0 10px;
+    padding-top:0;
+}
+
+.mascot-title-row{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+    align-items:center;
+    width:100%;
+    min-height:125px;
+}
+
+.mascot-title-row h1{
+    grid-column:2;
+    margin:0;
+}
+
+.mascot-title-row .mascot{
+    grid-column:1;
+    grid-row:1;
+    justify-self:end;
+    margin-right:10px;
+}
+
+.mascot{
+    position:relative;
+    width:92px;
+    height:125px;
+    flex:0 0 92px;
+    animation:mascot-float 3s ease-in-out infinite;
+}
+
+.mascot img{
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    filter:drop-shadow(0 6px 7px rgba(3,20,58,.22));
+}
+
+.mascot-speech{
+    position:relative;
+    z-index:4;
+    max-width:300px;
+    margin:0;
+    padding:8px 13px;
+    border:2px solid #bbdefb;
+    border-radius:16px;
+    background:#eef7ff;
+    color:#17467a;
+    font-weight:bold;
+    line-height:1.35;
+    white-space:pre-line;
+    transform:translateY(32px);
+}
+
+@keyframes mascot-float{
+    0%,100%{ transform:translateY(0) rotate(-1deg); }
+    50%{ transform:translateY(-7px) rotate(1deg); }
+}
+
+@media (prefers-reduced-motion:reduce){
+    .mascot{ animation:none; }
+}
+
 .install-app{
     position:fixed;
     top:12px;
@@ -436,7 +507,15 @@ th{
 </head>
 <body>
 
-<h1>勤怠管理アプリ</h1>
+<div class="mascot-greeting" aria-label="犬のキャラクターからのメッセージ">
+    <p class="mascot-speech">お疲れ様です！<br>今日も1日ご安全に！</p>
+    <div class="mascot-title-row">
+        <div class="mascot" aria-hidden="true">
+            <img src="worktime-dog-mascot.png" alt="">
+        </div>
+        <h1>勤怠管理アプリ</h1>
+    </div>
+</div>
 
 <div class="install-app">
 <button id="installAppBtn" type="button" hidden>アプリとして追加</button>
@@ -581,6 +660,13 @@ align-items:center;
 </div>
 
 <script>
+
+function setMascotMessage(message){
+    const speech = document.querySelector(".mascot-speech");
+    if(speech){
+        speech.textContent = message;
+    }
+}
 
 function formatDate(date){
     return date.toISOString().split("T")[0];
@@ -778,6 +864,8 @@ localStorage.setItem(
 
 loadData();
 
+setMascotMessage("今日も一日お疲れ様でした！");
+
 alert("退勤時刻を更新しました");
 
 }
@@ -974,6 +1062,14 @@ overtime = 0;
         workDate,
         workType
     );
+
+    if(workType === "work"){
+        setMascotMessage(
+            end
+            ? "今日も一日お疲れ様でした！"
+            : "出勤を登録しました。\nいってらっしゃい！"
+        );
+    }
 
     setTimeout(()=>{
         btn.disabled=false;
