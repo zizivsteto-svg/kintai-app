@@ -576,7 +576,7 @@ breakInput.disabled = disabled;
 
 function updateEndTime(){
 
-const end =
+let end =
 document.getElementById("end").value;
 
 if(!end){
@@ -588,11 +588,16 @@ let records =
 JSON.parse(localStorage.getItem("records")) || [];
 
 let target =
-records.find(r =>
+records
+.filter(r =>
     r.type === "work" &&
     r.start &&
     (!r.end || r.end === "-")
-);
+)
+.sort((a,b) =>
+    String(b.date || "").localeCompare(String(a.date || "")) ||
+    (b.id || 0) - (a.id || 0)
+)[0];
 
 if(!target){
     alert("未退勤の勤務が見つかりません");
