@@ -256,16 +256,22 @@ th{
 
 .history-pager{
     display:flex;
-    justify-content:center;
+    justify-content:space-between;
     align-items:center;
-    gap:12px;
+    gap:6px;
     margin-top:16px;
+}
+
+.history-navigation{
+    display:flex;
+    align-items:center;
+    gap:6px;
 }
 
 .history-pager button{
     width:auto;
     margin:0;
-    padding:9px 16px;
+    padding:9px 9px;
     font-size:14px;
 }
 
@@ -280,7 +286,8 @@ th{
 }
 
 .history-pager input[type="range"]{
-    flex:1;
+    flex:0 0 100px;
+    width:100px;
     margin:0;
     accent-color:#1976d2;
 }
@@ -959,6 +966,22 @@ JSON.stringify(records)
 loadData();
 
 }
+
+function saveBackup(){
+    const records = JSON.parse(localStorage.getItem("records")) || [];
+    const backup = {
+        app: "勤怠管理アプリ",
+        exportedAt: new Date().toISOString(),
+        records: records
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "勤怠管理バックアップ_" + new Date().toISOString().slice(0,10) + ".json";
+    link.click();
+    URL.revokeObjectURL(url);
+}
         
 function moveHistoryPage(direction){
     historyStart = Math.max(0, historyStart + direction);
@@ -1109,7 +1132,7 @@ visibleDates.length
 
 const maxHistoryStart = Math.max(0, dates.length - 1);
 document.getElementById("historyPager").innerHTML = dates.length
-? `<button onclick="moveHistoryPage(-2)" ${historyStart === 0 ? "disabled" : ""}>← 前の2日</button><input type="range" min="0" max="${maxHistoryStart}" value="${historyStart}" aria-label="勤務履歴を移動" ${maxHistoryStart === 0 ? "disabled" : ""} oninput="historyStart=Number(this.value);loadData()"><button onclick="moveHistoryPage(2)" ${historyStart >= maxHistoryStart ? "disabled" : ""}>次の2日 →</button><span>${maxHistoryStart === 0 ? "直近3日分を表示中" : "スライダーは1日単位で移動できます"}</span>`
+? `<div class="history-navigation"><button onclick="moveHistoryPage(-2)" ${historyStart === 0 ? "disabled" : ""}>← 前の2日</button><input type="range" min="0" max="${maxHistoryStart}" value="${historyStart}" aria-label="勤務履歴を移動" ${maxHistoryStart === 0 ? "disabled" : ""} oninput="historyStart=Number(this.value);loadData()"><button onclick="moveHistoryPage(2)" ${historyStart >= maxHistoryStart ? "disabled" : ""}>次の2日 →</button></div><button type="button" onclick="saveBackup()">保存</button>`
 : "";
 
 }  
