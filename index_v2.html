@@ -982,7 +982,8 @@ let html = "";
 const monthFilter =
 document.getElementById("monthFilter").value;
 
-records.forEach(r=>{
+// 選択した対象月の記録だけを月間集計に反映する
+records.filter(r => String(r.date || "").slice(0,7) === monthFilter).forEach(r=>{
 
 if(r.type==="work"){
 if(r.start && r.end && r.end !== "-"){
