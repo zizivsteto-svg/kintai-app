@@ -1,4 +1,4 @@
-const CACHE_NAME = "kintai-app-v5";
+const CACHE_NAME = "kintai-app-v6";
 const APP_FILES = [
   "./index_v2.html",
   "./manifest.webmanifest",
