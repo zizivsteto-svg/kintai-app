@@ -1195,9 +1195,9 @@ visibleDates.length
 : `<tr><td class="history-label">履歴</td><td>まだ勤務履歴はありません</td></tr>`;
 
 const maxHistoryStart = Math.max(0, dates.length - 1);
-document.getElementById("historyPager").innerHTML = dates.length
-? `<div class="history-navigation"><button onclick="moveHistoryPage(-2)" ${historyStart === 0 ? "disabled" : ""}>← 前の2日</button><input type="range" min="0" max="${maxHistoryStart}" value="${historyStart}" aria-label="勤務履歴を移動" ${maxHistoryStart === 0 ? "disabled" : ""} oninput="historyStart=Number(this.value);loadData()"><button onclick="moveHistoryPage(2)" ${historyStart >= maxHistoryStart ? "disabled" : ""}>次の2日 →</button></div><div class="backup-menu"><button type="button" onclick="toggleBackupMenu()">保存</button><div class="backup-menu-options" id="backupMenuOptions" hidden><button type="button" onclick="saveBackup()">バックアップを保存</button><button type="button" onclick="document.getElementById('backupFileInput').click()">バックアップを復元</button><input id="backupFileInput" type="file" accept="application/json,.json" hidden onchange="restoreBackup(this)"></div></div>`
-: "";
+const pagerValue = dates.length ? historyStart : 0;
+document.getElementById("historyPager").innerHTML =
+`<div class="history-navigation"><button onclick="moveHistoryPage(-2)" ${!dates.length || historyStart === 0 ? "disabled" : ""}>← 前の2日</button><input type="range" min="0" max="${maxHistoryStart}" value="${pagerValue}" aria-label="勤務履歴を移動" ${!dates.length || maxHistoryStart === 0 ? "disabled" : ""} oninput="historyStart=Number(this.value);loadData()"><button onclick="moveHistoryPage(2)" ${!dates.length || historyStart >= maxHistoryStart ? "disabled" : ""}>次の2日 →</button></div><div class="backup-menu"><button type="button" onclick="toggleBackupMenu()">保存</button><div class="backup-menu-options" id="backupMenuOptions" hidden><button type="button" onclick="saveBackup()">バックアップを保存</button><button type="button" onclick="document.getElementById('backupFileInput').click()">バックアップを復元</button><input id="backupFileInput" type="file" accept="application/json,.json" hidden onchange="restoreBackup(this)"></div></div>`;
 
 }  
 
