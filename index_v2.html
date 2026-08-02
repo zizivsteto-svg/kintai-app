@@ -28,6 +28,15 @@ h1,h2{
     text-align:center;
 }
 
+.install-app{
+    text-align:center;
+    margin:-4px 0 18px;
+}
+
+.install-app button{
+    margin:0;
+}
+
 input,select,button{
     width:100%;
     padding:12px;
@@ -326,6 +335,10 @@ th{
 <body>
 
 <h1>勤怠管理アプリ</h1>
+
+<div class="install-app">
+<button id="installAppBtn" type="button">アプリとして追加</button>
+</div>
 
 <div class="card">
 
@@ -1080,6 +1093,36 @@ if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("./sw.js");
     });
 }
+
+let deferredInstallPrompt;
+const installAppBtn = document.getElementById("installAppBtn");
+const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+if (isIos && !window.navigator.standalone) {
+    installAppBtn.hidden = false;
+}
+
+window.addEventListener("beforeinstallprompt", event => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+});
+
+installAppBtn.addEventListener("click", async () => {
+    if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        installAppBtn.textContent = "追加しました";
+        installAppBtn.disabled = true;
+        return;
+    }
+
+    if (isIos) {
+        alert("Safariの共有ボタンから『ホーム画面に追加』を選んでください。");
+    } else {
+        alert("ブラウザのメニューから『アプリをインストール』または『ホーム画面に追加』を選んでください。");
+    }
+});
 </script>
 
 </body></html>
