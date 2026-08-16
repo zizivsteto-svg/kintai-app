@@ -680,14 +680,37 @@ function setMascotMessage(message){
 }
 
 function formatDate(date){
-    return date.toISOString().split("T")[0];
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+/* 会社用の1日は18:00に切り替える */
+function getBusinessDate(){
+    const date = new Date();
+    date.setHours(date.getHours() + 6);
+    return date;
+}
+
+/* 開いたままでも、毎日18:00に会社用の日付へ切り替える */
+function scheduleBusinessDateRefresh(){
+    const now = new Date();
+    const nextCutoff = new Date(now);
+    nextCutoff.setHours(18, 0, 0, 0);
+
+    if(now >= nextCutoff){
+        nextCutoff.setDate(nextCutoff.getDate() + 1);
+    }
+
+    setTimeout(() => window.location.reload(), nextCutoff - now + 500);
 }
 
 document.getElementById("today").textContent =
-"本日 : " + formatDate(new Date());
+"本日 : " + formatDate(getBusinessDate());
 
 document.getElementById("workDate").value =
-formatDate(new Date());
+formatDate(getBusinessDate());
 
  const now = new Date();
 
@@ -706,7 +729,9 @@ setupTimeAutoFormat("start");
 setupTimeAutoFormat("end");
     
 document.getElementById("monthFilter").value =
-new Date().toISOString().slice(0,7);
+formatDate(getBusinessDate()).slice(0,7);
+
+scheduleBusinessDateRefresh();
 
 document.getElementById("monthFilter")
 .addEventListener("change", loadData);
@@ -723,7 +748,7 @@ document.querySelectorAll('input[name="dateType"]').forEach(radio => {
 if(this.value === "today"){
 
     document.getElementById("selectedDate").textContent =
-    "(" + formatDate(new Date()) + ")";
+    "(" + formatDate(getBusinessDate()) + ")";
 
     document.getElementById("workDate").style.display =
     "none";
@@ -731,7 +756,7 @@ if(this.value === "today"){
 }
 else if(this.value === "tomorrow"){
 
-    let d = new Date();
+    let d = getBusinessDate();
 
     d.setDate(d.getDate() + 1);
 
@@ -951,10 +976,10 @@ function calc(){
     let workDate;
 
     if(dateType==="today"){
-        workDate=formatDate(new Date());
+        workDate=formatDate(getBusinessDate());
     }
     else if(dateType==="tomorrow"){
-        let d=new Date();
+        let d=getBusinessDate();
         d.setDate(d.getDate()+1);
         workDate=formatDate(d);
     }
@@ -1261,7 +1286,7 @@ records.filter(r => r.type === "work" && r.start && r.end && r.end !== "-").forE
     weeklyBaseMinutes[weekStart] = (weeklyBaseMinutes[weekStart] || 0) + Math.min(workMinutes, DAILY_LIMIT);
 });
 
-const today = new Date();
+const today = getBusinessDate();
 today.setHours(0, 0, 0, 0);
 
 Object.entries(weeklyBaseMinutes).forEach(([weekStart, baseMinutes]) => {
