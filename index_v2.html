@@ -330,6 +330,12 @@ th{
 .history-scroll{
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
+    touch-action:pan-y;
+    cursor:grab;
+}
+
+.history-scroll:active{
+    cursor:grabbing;
 }
 
 .history-matrix{
@@ -483,9 +489,9 @@ th{
         max-width:140px;
     }
 
-    /* 画面幅が狭いスマホでも、日付3列を横スクロールなしで表示する */
+    /* 表は左右スワイプで日付を移動できる */
     .history-scroll{
-        overflow-x:hidden;
+        overflow-x:auto;
     }
 
     .history-matrix{
@@ -789,6 +795,29 @@ document.getElementById("workDate")
 /* 初回の loadData 実行前に初期化する */
 /* -1 は、初回表示時に最新の記録日を基準にする印 */
 let historyStart = -1;
+
+/* 勤務履歴は、表を左右にスワイプしても前後の日付へ移動できる */
+const historyScroll = document.querySelector(".history-scroll");
+let historySwipeStartX = null;
+
+historyScroll.addEventListener("pointerdown", event => {
+    historySwipeStartX = event.clientX;
+    historyScroll.setPointerCapture?.(event.pointerId);
+});
+
+historyScroll.addEventListener("pointerup", event => {
+    if(historySwipeStartX === null) return;
+
+    const distance = event.clientX - historySwipeStartX;
+    historySwipeStartX = null;
+
+    if(Math.abs(distance) < 50) return;
+    moveHistoryPage(distance < 0 ? 2 : -2);
+});
+
+historyScroll.addEventListener("pointercancel", () => {
+    historySwipeStartX = null;
+});
 
 loadData();
     
