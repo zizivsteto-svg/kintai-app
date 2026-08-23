@@ -326,6 +326,26 @@ th{
     color:#c62828;
 }
 
+/* 月間集計 */
+.monthly-summary{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:8px 32px;
+    font-weight:bold;
+    align-items:center;
+}
+
+.monthly-summary-item{
+    white-space:nowrap;
+}
+
+.monthly-status{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    white-space:nowrap;
+}
+
 /* 勤務履歴：項目を縦軸、日付を横軸にする */
 .history-scroll{
     overflow-x:auto;
@@ -487,6 +507,15 @@ th{
 
     #monthFilterInline{
         max-width:140px;
+    }
+
+    .monthly-summary{
+        gap:8px 16px;
+        font-size:15px;
+    }
+
+    .monthly-status{
+        gap:8px;
     }
 
     /* 表は左右スワイプで日付を移動できる */
@@ -1261,6 +1290,7 @@ let records =
 JSON.parse(localStorage.getItem("records")) || [];
 
 let totalWork = 0;
+let totalBound = 0;
 let totalOver = 0;
 
 let workCount = 0;
@@ -1278,6 +1308,7 @@ records.filter(r => String(r.date || "").slice(0,7) === monthFilter).forEach(r=>
 if(r.type==="work"){
 if(r.start && r.end && r.end !== "-"){
 workCount++;
+totalBound += (Number(r.work) || 0) + (Number(r.breakTime) || 0);
 }
 totalWork += r.work || 0;
 }
@@ -1332,6 +1363,9 @@ Object.entries(weeklyBaseMinutes).forEach(([weekStart, baseMinutes]) => {
 let workH = Math.floor(totalWork/60);
 let workM = totalWork%60;
 
+let boundH = Math.floor(totalBound/60);
+let boundM = totalBound%60;
+
 let overH = Math.floor(totalOver/60);
 let overM = totalOver%60;
 let overtimeMeterWidth = Math.min(100, totalOver / 60);
@@ -1340,15 +1374,9 @@ let overtimeMessage = totalOver >= 74 * 60 ? "（74時間以上：警告）" : t
 
 document.getElementById("monthly").innerHTML = `
 
-<div style="
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:8px 40px;
-font-weight:bold;
-align-items:center;
-">
+<div class="monthly-summary">
 
-    <div style="display:flex;align-items:center;gap:10px;">
+    <div class="monthly-summary-item" style="display:flex;align-items:center;gap:10px;">
     <span>対象</span>
 
     <input
@@ -1362,24 +1390,25 @@ align-items:center;
     ">
 </div>
 
-    <div>
+    <div class="monthly-summary-item">
         勤務回数 ${workCount}回
     </div>
 
-    <div>
-        勤務時間 ${workH}時間${workM}分
+    <div class="monthly-summary-item">
+        実働時間 ${workH}時間${workM}分
     </div>
 
-    <div>
-        休日 ${holidayCount}日
+    <div class="monthly-status">
+        <span>休日 ${holidayCount}日</span>
+        <span>欠勤 ${absenceCount}日</span>
     </div>
 
-    <div>
+    <div class="monthly-summary-item">
         残業時間 ${overH}時間${overM}分
     </div>
 
-    <div>
-        欠勤 ${absenceCount}日
+    <div class="monthly-summary-item">
+        拘束時間 ${boundH}時間${boundM}分
     </div>
 
     <div class="overtime-meter ${overtimeLevel}">
