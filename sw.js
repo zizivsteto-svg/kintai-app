@@ -1,7 +1,9 @@
-const CACHE_NAME = "kintai-app-v8";
+const CACHE_NAME = "kintai-app-v9";
 const APP_FILES = [
   "./index_v2.html",
   "./manifest.webmanifest",
+  "./sync.js",
+  "./sync-config.js",
   "./icon-512.png",
   "./worktime-dog-mascot.png"
 ];

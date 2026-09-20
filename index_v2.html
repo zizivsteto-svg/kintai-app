@@ -460,6 +460,138 @@ th{
     accent-color:#1976d2;
 }
 
+.sync-card{
+    border-left:5px solid #1976d2;
+}
+
+.sync-heading{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+}
+
+.sync-heading h2{
+    margin:0;
+}
+
+.sync-status{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:5px 9px;
+    border-radius:999px;
+    background:#eef2f6;
+    color:#475569;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.sync-status[data-state="online"]{
+    background:#e7f7ed;
+    color:#176b35;
+}
+
+.sync-status[data-state="offline"],
+.sync-status[data-state="error"]{
+    background:#fff0f0;
+    color:#a32323;
+}
+
+.sync-description{
+    margin:12px 0;
+    color:#4b5563;
+    line-height:1.55;
+}
+
+.sync-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.sync-actions button{
+    margin:0;
+}
+
+.sync-actions .secondary{
+    background:#607d8b;
+}
+
+.sync-code{
+    margin:12px 0 0;
+    padding:12px;
+    border:1px dashed #90a4ae;
+    border-radius:8px;
+    background:#f8fafc;
+    font-family:ui-monospace,Consolas,monospace;
+    font-size:18px;
+    letter-spacing:.08em;
+    overflow-wrap:anywhere;
+}
+
+.sync-dialog{
+    width:min(92vw,440px);
+    border:0;
+    border-radius:14px;
+    padding:0;
+    box-shadow:0 18px 50px rgba(0,0,0,.28);
+}
+
+.sync-dialog::backdrop{
+    background:rgba(15,23,42,.55);
+}
+
+.sync-dialog-inner{
+    padding:22px;
+}
+
+.sync-dialog h2{
+    margin-top:0;
+}
+
+.sync-dialog label{
+    display:block;
+    margin:12px 0 6px;
+    font-weight:bold;
+}
+
+.sync-dialog input{
+    width:100%;
+    box-sizing:border-box;
+    font-size:18px;
+    text-transform:uppercase;
+}
+
+.sync-dialog .pin-input{
+    letter-spacing:.45em;
+    text-align:center;
+}
+
+.sync-dialog-actions{
+    display:grid;
+    gap:9px;
+    margin-top:18px;
+}
+
+.sync-dialog-actions button{
+    margin:0;
+}
+
+.sync-dialog-actions .secondary{
+    background:#607d8b;
+}
+
+.sync-dialog-actions .danger{
+    background:#b42318;
+}
+
+.sync-help{
+    color:#5f6b76;
+    font-size:13px;
+    line-height:1.5;
+}
+
 @media (max-width:600px){
 
     body{
@@ -704,6 +836,23 @@ align-items:center;
 <div class="history-pager" id="historyPager"></div>
 
 </div>
+
+<div class="card sync-card" id="syncCard">
+    <div class="sync-heading">
+        <h2>データ連携</h2>
+        <span class="sync-status" id="syncStatus" data-state="idle">未連携</span>
+    </div>
+    <p class="sync-description" id="syncDescription">スマホとPCで、自分の勤務データを同期できます。</p>
+    <div class="sync-actions" id="syncActions">
+        <button type="button" id="startSyncBtn">連携を始める</button>
+        <button type="button" class="secondary" id="joinSyncBtn">別端末を連携</button>
+    </div>
+    <div class="sync-code" id="syncCodeDisplay" hidden></div>
+</div>
+
+<dialog class="sync-dialog" id="syncDialog">
+    <div class="sync-dialog-inner" id="syncDialogContent"></div>
+</dialog>
 
 <script>
 
@@ -955,6 +1104,7 @@ localStorage.setItem(
     "records",
     JSON.stringify(records)
 );
+notifyRecordsChanged();
 
 loadData();
 
@@ -1198,6 +1348,7 @@ workType
         "records",
         JSON.stringify(records)
     );
+    notifyRecordsChanged();
 
     loadData();
 
@@ -1223,6 +1374,7 @@ localStorage.setItem(
 "records",
 JSON.stringify(records)
 );
+notifyRecordsChanged();
 
 loadData();
 
@@ -1268,6 +1420,7 @@ function restoreBackup(input){
             }
 
             localStorage.setItem("records", JSON.stringify(records));
+            notifyRecordsChanged();
             historyStart = -1;
             loadData();
             alert("バックアップを復元しました");
@@ -1282,6 +1435,10 @@ function restoreBackup(input){
 function moveHistoryPage(direction){
     historyStart = Math.max(0, historyStart + direction);
     loadData();
+}
+
+function notifyRecordsChanged(){
+    window.dispatchEvent(new CustomEvent("crotty-records-changed"));
 }
 
 function loadData(){
@@ -1310,6 +1467,7 @@ if(r.start && r.end && r.end !== "-"){
 workCount++;
 totalBound += (Number(r.work) || 0) + (Number(r.breakTime) || 0);
 }
+
 totalWork += r.work || 0;
 }
 else if(r.type==="holiday"){
@@ -1490,6 +1648,9 @@ document.getElementById("historyPager").innerHTML =
 }  
 
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<script type="module" src="sync.js"></script>
 
 <script>
 if ("serviceWorker" in navigator) {
